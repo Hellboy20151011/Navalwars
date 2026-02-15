@@ -111,7 +111,7 @@ func _attempt_fire_weapons(direction_to_target: Vector2):
 	var gun_direction = Vector2(0, -1).rotated(rotation)
 	var aim_angle = gun_direction.angle_to(direction_to_target)
 	
-	if abs(aim_angle) < 0.3:  # Within ~17 degrees
+	if abs(aim_angle) < deg_to_rad(17):  # Within 17 degrees
 		if can_fire_main_guns and randf() < 0.3:
 			fire_main_guns()
 		if can_fire_secondary_guns and randf() < 0.5:

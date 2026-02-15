@@ -9,11 +9,15 @@ extends Area2D
 var velocity: Vector2 = Vector2.ZERO
 var travel_distance: float = 0.0
 var max_range: float = 2000.0
+var trail_node: Line2D = null
 
 func _ready():
 	# Set collision layers
 	collision_layer = 4  # Projectile layer
 	collision_mask = 3   # Can hit ships (player and enemy)
+	
+	# Cache trail node reference
+	trail_node = $Trail
 
 func initialize(start_position: Vector2, direction: float, projectile_speed: float, projectile_damage: int):
 	position = start_position
@@ -35,18 +39,17 @@ func _physics_process(delta):
 	_update_trail()
 
 func _update_trail():
-	var trail = $Trail
-	if not trail:
+	if not trail_node:
 		return
 		
 	# Add point to trail
 	var local_pos = to_local(position - velocity.normalized() * 10)
-	if trail.get_point_count() < 10:
-		trail.add_point(local_pos)
+	if trail_node.get_point_count() < 10:
+		trail_node.add_point(local_pos)
 	else:
 		# Remove oldest point and add new one
-		trail.remove_point(0)
-		trail.add_point(local_pos)
+		trail_node.remove_point(0)
+		trail_node.add_point(local_pos)
 
 func _on_body_entered(body):
 	if body.has_method("take_damage"):

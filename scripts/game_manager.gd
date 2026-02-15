@@ -8,6 +8,7 @@ var game_time: float = 0.0
 var score: int = 0
 var enemy_spawn_timer: float = 0.0
 var enemy_spawn_interval: float = 20.0
+var camera: Camera2D = null
 
 # Preload enemy ship scene
 var enemy_ship_scene = preload("res://scenes/enemy_ship.tscn")
@@ -20,8 +21,8 @@ func _ready():
 		# Add player to group for enemy detection
 		player_ship.add_to_group("player")
 	
-	# Set camera to follow player ship
-	var camera = $Camera2D
+	# Cache camera reference
+	camera = $Camera2D
 	if player_ship and camera:
 		camera.position = player_ship.position
 	
@@ -39,8 +40,7 @@ func _process(delta):
 		_spawn_random_enemy()
 	
 	# Update camera to follow player ship
-	if player_ship:
-		var camera = $Camera2D
+	if player_ship and camera:
 		camera.position = camera.position.lerp(player_ship.position, delta * 2.0)
 		
 		# Update UI

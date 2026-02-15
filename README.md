@@ -39,7 +39,7 @@ Naval Wars is a 2D naval combat game that draws inspiration from the classic Nav
 ## Project Structure
 
 ```
-Navalwars/
+naval-wars/
 ├── scenes/           # Godot scene files
 │   ├── main.tscn    # Main game scene
 │   ├── ship.tscn    # Ship entity
