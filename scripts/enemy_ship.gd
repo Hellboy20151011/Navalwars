@@ -212,6 +212,13 @@ func take_damage(amount: int):
 
 func _destroy_ship():
 	print("Enemy ship destroyed!")
+	
+	# Create explosion effect
+	var explosion_scene = preload("res://scenes/explosion.tscn")
+	var explosion = explosion_scene.instantiate()
+	get_parent().add_child(explosion)
+	explosion.global_position = global_position
+	explosion.explosion_radius = 60.0
+	
 	enemy_destroyed.emit()
-	# TODO: Add explosion effect, drop rewards
 	queue_free()

@@ -61,5 +61,12 @@ func _on_life_timer_timeout():
 	_explode()
 
 func _explode():
-	# TODO: Add explosion effect
+	# Create small explosion effect on impact/timeout
+	var explosion_scene = preload("res://scenes/explosion.tscn")
+	var explosion = explosion_scene.instantiate()
+	get_parent().add_child(explosion)
+	explosion.global_position = global_position
+	explosion.explosion_radius = 25.0
+	explosion.explosion_duration = 0.5
+	
 	queue_free()
