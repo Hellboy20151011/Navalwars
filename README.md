@@ -8,8 +8,16 @@ Naval Wars is a 2D naval combat game that draws inspiration from the classic Nav
 
 ## Features
 
+- **Login System** (NEW!): Simple username-based login screen to start the game
+- **Ship Yard / Dry Dock** (NEW!): Main configuration screen where players can:
+  - Select ship class (Destroyer, Cruiser, Battleship, Carrier)
+  - Configure weapons (Main guns and secondary guns)
+  - Choose propulsion system
+  - Select fire control system
+  - Assign crew to the ship
+- **Battle Menu** (NEW!): Select battle modes and start practice battles
 - **Realistic Naval Physics**: Ships have realistic acceleration, turning radius that depends on speed, and water resistance
-- **Ship Class System** (NEW!): 
+- **Ship Class System**: 
   - Destroyer: Fast and maneuverable, lower damage
   - Cruiser: Balanced all-around performance
   - Battleship: Slow but powerful, heavy armor
@@ -20,9 +28,9 @@ Naval Wars is a 2D naval combat game that draws inspiration from the classic Nav
   - Muzzle flash effects for visual feedback
 - **Ship Management**: Monitor hull integrity, speed, weapon status, and ship class
 - **Top-down Naval Combat**: Classic 2D perspective similar to Navyfield 1
-- **Tactical Minimap** (NEW!): Real-time overview of battle arena showing player and enemy positions
-- **World Boundaries** (NEW!): Defined battle arena with visual boundary markers
-- **Visual Effects** (NEW!): Explosion effects for ship destruction and projectile impacts
+- **Tactical Minimap**: Real-time overview of battle arena showing player and enemy positions
+- **World Boundaries**: Defined battle arena with visual boundary markers
+- **Visual Effects**: Explosion effects for ship destruction and projectile impacts
 
 ## Controls
 
@@ -44,25 +52,42 @@ Naval Wars is a 2D naval combat game that draws inspiration from the classic Nav
 1. Clone this repository
 2. Open the project in Godot Engine
 3. Press F5 or click "Run Project" to start the game
+4. You'll see the login screen:
+   - Enter a username (password optional for now)
+   - Press Enter or click "Login"
+5. Configure your ship in the Ship Yard:
+   - Choose ship class using "< PREV" and "NEXT >" buttons
+   - Configure weapons, engine, and fire control
+   - Assign crew if desired
+6. Click "Enter Battle" to go to the Battle Menu
+7. Click "Start Practice Battle" to begin combat
+8. Use "Return to Menu" button to exit battle and reconfigure your ship
 
 ## Project Structure
 
 ```
 naval-wars/
-├── scenes/           # Godot scene files
-│   ├── main.tscn    # Main game scene
-│   ├── ship.tscn    # Ship entity
-│   ├── ocean.tscn   # Ocean environment
-│   └── projectile.tscn # Projectile/shell
-├── scripts/         # GDScript files
-│   ├── game_manager.gd # Main game controller
-│   ├── ship.gd         # Ship control and combat
-│   ├── ocean.gd        # Ocean environment
-│   └── projectile.gd   # Projectile physics
-├── assets/          # Game assets
-│   ├── sprites/     # Sprite images
-│   └── sounds/      # Sound effects
-└── project.godot    # Godot project configuration
+├── scenes/                # Godot scene files
+│   ├── login_screen.tscn # Login screen (NEW!)
+│   ├── ship_yard.tscn    # Ship configuration/dry dock (NEW!)
+│   ├── battle_menu.tscn  # Battle selection menu (NEW!)
+│   ├── main.tscn         # Main battle scene
+│   ├── ship.tscn         # Ship entity
+│   ├── ocean.tscn        # Ocean environment
+│   └── projectile.tscn   # Projectile/shell
+├── scripts/               # GDScript files
+│   ├── login_screen.gd   # Login logic (NEW!)
+│   ├── ship_yard.gd      # Ship configuration logic (NEW!)
+│   ├── battle_menu.gd    # Battle menu logic (NEW!)
+│   ├── game_state.gd     # Global state manager (NEW!)
+│   ├── game_manager.gd   # Main game controller
+│   ├── ship.gd           # Ship control and combat
+│   ├── ocean.gd          # Ocean environment
+│   └── projectile.gd     # Projectile physics
+├── assets/                # Game assets
+│   ├── sprites/          # Sprite images
+│   └── sounds/           # Sound effects
+└── project.godot         # Godot project configuration
 ```
 
 ## Game Mechanics
@@ -122,16 +147,22 @@ naval-wars/
 - [x] Visual effects (explosions, muzzle flashes)
 - [x] Tactical minimap
 - [x] World boundaries
+- [x] Login system
+- [x] Ship yard / dry dock configuration screen
+- [x] Battle menu and navigation flow
+- [ ] Apply ship configuration to actual battle stats
+- [ ] Enhanced ship visual representation in dry dock
 - [ ] Advanced AI formations and tactics
 - [ ] Multiplayer support
 - [ ] Additional weapon types (torpedoes, depth charges, aircraft)
 - [ ] Port and repair systems
 - [ ] Campaign mode with missions
-- [ ] Ship upgrades and customization
+- [ ] Ship upgrades and progression system
 - [ ] Realistic water shader effects
 - [ ] Sound effects and music
 - [ ] Team-based combat (Red vs Blue teams)
 - [ ] More detailed particle effects
+- [ ] User authentication system
 
 ## Inspired by Navyfield 1
 
