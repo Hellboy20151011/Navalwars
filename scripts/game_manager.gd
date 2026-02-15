@@ -99,8 +99,11 @@ func spawn_enemy_ship(spawn_position: Vector2, enemy_class: int = -1):
 	enemy.global_position = spawn_position
 	
 	# Set random ship class if not specified
+	# Note: Carrier (class 3) excluded from random spawning as it's designed for player use
+	# Enemies use Destroyer (0), Cruiser (1), or Battleship (2) for balanced combat
+	const NUM_SPAWNABLE_ENEMY_CLASSES = 3
 	if enemy_class == -1:
-		enemy_class = randi() % 3  # 0=Destroyer, 1=Cruiser, 2=Battleship
+		enemy_class = randi() % NUM_SPAWNABLE_ENEMY_CLASSES
 	enemy.ship_class = enemy_class
 	
 	enemy.connect("enemy_destroyed", _on_enemy_destroyed)

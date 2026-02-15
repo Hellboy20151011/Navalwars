@@ -24,7 +24,7 @@ var ship_class_name: String = "Cruiser"
 
 # Preload projectile scene and ship classes
 var projectile_scene = preload("res://scenes/projectile.tscn")
-var ShipClasses = preload("res://scripts/ship_classes.gd")
+var ship_classes = preload("res://scripts/ship_classes.gd")
 
 # Public getter methods for game manager
 func get_health() -> int:
@@ -47,7 +47,7 @@ func _ready():
 
 func _apply_ship_class_stats():
 	# Get ship class data and apply to this ship
-	var class_data = ShipClasses.get_ship_class_data(ship_class)
+	var class_data = ship_classes.get_ship_class_data(ship_class)
 	
 	ship_class_name = class_data.class_name
 	max_health = class_data.max_health
@@ -58,7 +58,7 @@ func _apply_ship_class_stats():
 	secondary_gun_damage = class_data.secondary_gun_damage
 	
 	# Apply visual scale
-	var ship_scale = ShipClasses.get_ship_scale(ship_class)
+	var ship_scale = ship_classes.get_ship_scale(ship_class)
 	scale = ship_scale
 	
 	print("Ship class applied: %s" % ship_class_name)
