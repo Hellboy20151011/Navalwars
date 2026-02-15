@@ -1,0 +1,69 @@
+[gd_scene load_steps=4 format=3 uid="uid://cr3t0l3ym3y0q"]
+
+[ext_resource type="PackedScene" uid="uid://dg4aomkptxlel" path="res://scenes/player_ship.tscn" id="1_main"]
+[ext_resource type="Script" path="res://scripts/ui.gd" id="2_ui"]
+[ext_resource type="Script" path="res://scripts/enemy_spawner.gd" id="3_spawner"]
+
+[node name="Main" type="Node2D"]
+
+[node name="Ocean" type="ColorRect" parent="."]
+offset_right = 1280.0
+offset_bottom = 720.0
+color = Color(0, 0.3, 0.5, 1)
+
+[node name="PlayerShip" parent="." instance=ExtResource("1_main")]
+position = Vector2(640, 600)
+
+[node name="Camera2D" type="Camera2D" parent="PlayerShip"]
+
+[node name="EnemySpawner" type="Node2D" parent="."]
+script = ExtResource("3_spawner")
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="Control" type="Control" parent="UI"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2_ui")
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/Control"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 80.0
+grow_horizontal = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/Control/MarginContainer"]
+layout_mode = 2
+
+[node name="HealthLabel" type="Label" parent="UI/Control/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Health: 100 / 100"
+
+[node name="HealthBar" type="ProgressBar" parent="UI/Control/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(200, 20)
+layout_mode = 2
+max_value = 100.0
+value = 100.0
+show_percentage = false
+
+[node name="Controls" type="Label" parent="UI/Control"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = -80.0
+offset_right = 400.0
+offset_bottom = -20.0
+grow_vertical = 0
+text = "Controls:
+WASD - Move and Turn
+SPACE - Fire"
