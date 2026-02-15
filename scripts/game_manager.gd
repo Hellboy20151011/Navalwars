@@ -21,6 +21,11 @@ func _ready():
 	print("Naval Wars - Starting Game")
 	player_ship = get_node_or_null("PlayerShip")
 	if player_ship:
+		# Apply ship configuration from GameState
+		var config = GameState.get_ship_config()
+		player_ship.ship_class = config["ship_class"]
+		print("Applying ship configuration: %s" % config)
+		
 		player_ship.connect("ship_destroyed", _on_ship_destroyed)
 		# Add player to group for enemy detection
 		player_ship.add_to_group("player")
@@ -34,6 +39,11 @@ func _ready():
 	minimap = get_node_or_null("UI/HUD/Minimap")
 	if minimap and player_ship:
 		minimap.set_player_ship(player_ship)
+	
+	# Connect return button
+	var return_button = get_node_or_null("UI/HUD/ReturnButton")
+	if return_button:
+		return_button.connect("pressed", _on_return_to_menu)
 	
 	# Spawn initial enemies
 	spawn_enemy_ship(Vector2(1500, 500))
@@ -123,3 +133,7 @@ func _spawn_random_enemy():
 func _on_enemy_destroyed():
 	score += 100
 	print("Enemy destroyed! Score: %d" % score)
+
+func _on_return_to_menu():
+	print("Returning to battle menu...")
+	get_tree().change_scene_to_file("res://scenes/battle_menu.tscn")
