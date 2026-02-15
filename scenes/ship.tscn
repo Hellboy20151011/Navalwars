@@ -1,0 +1,37 @@
+[gd_scene load_steps=3 format=3 uid="uid://b5n6ynxpyhv8v"]
+
+[ext_resource type="Script" path="res://scripts/ship.gd" id="1_ship"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ship"]
+size = Vector2(60, 120)
+
+[node name="Ship" type="CharacterBody2D"]
+script = ExtResource("1_ship")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_ship")
+
+[node name="ShipSprite" type="Polygon2D" parent="."]
+color = Color(0.4, 0.4, 0.4, 1)
+polygon = PackedVector2Array(-20, 50, 0, -60, 20, 50, 0, 40)
+
+[node name="TurretFront" type="Polygon2D" parent="."]
+position = Vector2(0, -20)
+color = Color(0.6, 0.6, 0.6, 1)
+polygon = PackedVector2Array(-10, -5, 10, -5, 10, 5, -10, 5)
+
+[node name="TurretRear" type="Polygon2D" parent="."]
+position = Vector2(0, 20)
+color = Color(0.6, 0.6, 0.6, 1)
+polygon = PackedVector2Array(-10, -5, 10, -5, 10, 5, -10, 5)
+
+[node name="MainGunTimer" type="Timer" parent="."]
+wait_time = 3.0
+one_shot = true
+
+[node name="SecondaryGunTimer" type="Timer" parent="."]
+wait_time = 1.0
+one_shot = true
+
+[connection signal="timeout" from="MainGunTimer" to="." method="_on_main_gun_timer_timeout"]
+[connection signal="timeout" from="SecondaryGunTimer" to="." method="_on_secondary_gun_timer_timeout"]
