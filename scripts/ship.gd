@@ -1,10 +1,13 @@
 extends CharacterBody2D
 # Ship Controller - Naval vessel with Navyfield 1 inspired mechanics
-# Features: Speed control, turning, main guns, secondary guns
+# Features: Speed control, turning, main guns, secondary guns, ship classes
 
 signal ship_destroyed
 
-# Ship stats (inspired by Navyfield 1)
+# Ship class system (NavyField-inspired)
+@export var ship_class: int = 1  # 0=Destroyer, 1=Cruiser, 2=Battleship, 3=Carrier
+
+# Ship stats (inspired by Navyfield 1) - will be set based on ship_class
 @export var max_health: int = 100
 @export var max_speed: float = 200.0
 @export var acceleration: float = 50.0
@@ -17,20 +20,48 @@ var current_speed: float = 0.0
 var rotation_velocity: float = 0.0
 var can_fire_main_guns: bool = true
 var can_fire_secondary_guns: bool = true
+var ship_class_name: String = "Cruiser"
 
-# Preload projectile scene
+# Preload projectile scene and ship classes
 var projectile_scene = preload("res://scenes/projectile.tscn")
+var ship_classes = preload("res://scripts/ship_classes.gd")
 
 # Public getter methods for game manager
 func get_health() -> int:
 	return health
 
+func get_max_health() -> int:
+	return max_health
+
+func get_ship_class_name() -> String:
+	return ship_class_name
+
 func get_can_fire_main_guns() -> bool:
 	return can_fire_main_guns
 
 func _ready():
+	# Apply ship class stats
+	_apply_ship_class_stats()
 	health = max_health
-	print("Ship initialized with %d health" % health)
+	print("%s initialized with %d health" % [ship_class_name, health])
+
+func _apply_ship_class_stats():
+	# Get ship class data and apply to this ship
+	var class_data = ship_classes.get_ship_class_data(ship_class)
+	
+	ship_class_name = class_data.class_name
+	max_health = class_data.max_health
+	max_speed = class_data.max_speed
+	acceleration = class_data.acceleration
+	turn_speed = class_data.turn_speed
+	main_gun_damage = class_data.main_gun_damage
+	secondary_gun_damage = class_data.secondary_gun_damage
+	
+	# Apply visual scale
+	var ship_scale = ship_classes.get_ship_scale(ship_class)
+	scale = ship_scale
+	
+	print("Ship class applied: %s" % ship_class_name)
 
 func _physics_process(delta):
 	# Handle movement input
@@ -72,6 +103,10 @@ func fire_main_guns():
 	can_fire_main_guns = false
 	$MainGunTimer.start()
 	
+	# Create muzzle flash effects
+	_create_muzzle_flash(Vector2(0, -30))
+	_create_muzzle_flash(Vector2(0, 30))
+	
 	# Create main gun projectiles (front and rear turrets)
 	_spawn_projectile(Vector2(0, -30), main_gun_damage, 600.0)
 	_spawn_projectile(Vector2(0, 30), main_gun_damage, 600.0)
@@ -83,6 +118,10 @@ func fire_secondary_guns():
 	print("Secondary guns fired!")
 	can_fire_secondary_guns = false
 	$SecondaryGunTimer.start()
+	
+	# Create muzzle flash effects
+	_create_muzzle_flash(Vector2(-15, -10))
+	_create_muzzle_flash(Vector2(15, -10))
 	
 	# Create secondary gun projectiles (faster, less damage)
 	_spawn_projectile(Vector2(-15, -10), secondary_gun_damage, 700.0)
@@ -103,13 +142,43 @@ func take_damage(amount: int):
 
 func _destroy_ship():
 	print("Ship destroyed!")
+	
+	# Create explosion effect
+	var explosion_scene = preload("res://scenes/explosion.tscn")
+	var explosion = explosion_scene.instantiate()
+	get_parent().add_child(explosion)
+	explosion.global_position = global_position
+	explosion.explosion_radius = 80.0  # Larger explosion for player ship
+	
 	ship_destroyed.emit()
-	# TODO: Add explosion effect
 	queue_free()
 
 func repair(amount: int):
 	health = min(health + amount, max_health)
 	print("Ship repaired. Health: %d/%d" % [health, max_health])
+
+func _create_muzzle_flash(offset: Vector2):
+	# Create visual muzzle flash effect
+	var flash = Node2D.new()
+	flash.z_index = 10
+	add_child(flash)
+	flash.position = offset
+	
+	# Draw the flash
+	var flash_drawer = func():
+		flash.queue_redraw()
+	
+	flash.draw.connect(func():
+		var flash_color = Color(1.0, 0.9, 0.5, 0.8)
+		flash.draw_circle(Vector2.ZERO, 10, flash_color)
+		flash.draw_circle(Vector2.ZERO, 6, Color(1, 1, 1, 0.9))
+	)
+	
+	flash.queue_redraw()
+	
+	# Remove flash after short duration
+	await get_tree().create_timer(0.1).timeout
+	flash.queue_free()
 
 func _spawn_projectile(offset: Vector2, damage: int, speed: float):
 	var projectile = projectile_scene.instantiate()

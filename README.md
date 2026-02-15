@@ -9,11 +9,20 @@ Naval Wars is a 2D naval combat game that draws inspiration from the classic Nav
 ## Features
 
 - **Realistic Naval Physics**: Ships have realistic acceleration, turning radius that depends on speed, and water resistance
+- **Ship Class System** (NEW!): 
+  - Destroyer: Fast and maneuverable, lower damage
+  - Cruiser: Balanced all-around performance
+  - Battleship: Slow but powerful, heavy armor
+  - Carrier: Support vessel with excellent detection
 - **Weapon Systems**: 
   - Main Guns: High damage, slow reload (inspired by battleship main batteries)
   - Secondary Guns: Lower damage, faster reload (anti-ship and anti-aircraft capabilities)
-- **Ship Management**: Monitor hull integrity, speed, and weapon status
+  - Muzzle flash effects for visual feedback
+- **Ship Management**: Monitor hull integrity, speed, weapon status, and ship class
 - **Top-down Naval Combat**: Classic 2D perspective similar to Navyfield 1
+- **Tactical Minimap** (NEW!): Real-time overview of battle arena showing player and enemy positions
+- **World Boundaries** (NEW!): Defined battle arena with visual boundary markers
+- **Visual Effects** (NEW!): Explosion effects for ship destruction and projectile impacts
 
 ## Controls
 
@@ -64,24 +73,55 @@ naval-wars/
 - Water resistance affects movement
 
 ### Combat System
-- **Main Guns**: Powerful weapons with 3-second reload time
-  - Damage: 50 HP per hit
+### Ship Classes (NavyField-Inspired)
+
+**Destroyer (DD)**
+- Health: 60 HP
+- Speed: Fast (250 units/s, ~25 knots)
+- Main Guns: 30 damage, 2.5s reload
+- Role: Hit-and-run tactics, fast response
+
+**Cruiser (CA)**
+- Health: 100 HP
+- Speed: Medium (200 units/s, ~20 knots)
+- Main Guns: 50 damage, 3.0s reload
+- Role: Balanced all-around combat
+
+**Battleship (BB)**
+- Health: 200 HP
+- Speed: Slow (120 units/s, ~12 knots)
+- Main Guns: 100 damage, 5.0s reload
+- Role: Heavy firepower, tank damage
+
+**Carrier (CV)**
+- Health: 150 HP
+- Speed: Medium-slow (150 units/s, ~15 knots)
+- Main Guns: 10 damage, 4.0s reload
+- Role: Support, excellent detection range
+
+### Combat System
+
+- **Main Guns**: Powerful weapons with class-specific reload times
   - Range: 2000 units
   - Speed: 600 units/second
+  - Damage varies by ship class
   
-- **Secondary Guns**: Faster firing weapons with 1-second reload time
-  - Damage: 15 HP per hit
+- **Secondary Guns**: Faster firing weapons for sustained fire
   - Range: 2000 units
   - Speed: 700 units/second
+  - Damage varies by ship class
 
-### Ship Stats
-- Hull Integrity: 100 HP (can be expanded for different ship classes)
-- Maximum Speed: 200 units/second (~20 knots)
-- Acceleration: 50 units/second²
+### Map Features
+- **Battle Arena**: 5000x5000 unit ocean battlefield
+- **World Boundaries**: Visual markers showing map limits
+- **Tactical Minimap**: Real-time 200x200 pixel overview
 
 ## Future Development
 
-- [ ] Multiple ship classes (Destroyer, Cruiser, Battleship, Carrier)
+- [x] Multiple ship classes (Destroyer, Cruiser, Battleship, Carrier)
+- [x] Visual effects (explosions, muzzle flashes)
+- [x] Tactical minimap
+- [x] World boundaries
 - [ ] Advanced AI formations and tactics
 - [ ] Multiplayer support
 - [ ] Additional weapon types (torpedoes, depth charges, aircraft)
@@ -90,7 +130,8 @@ naval-wars/
 - [ ] Ship upgrades and customization
 - [ ] Realistic water shader effects
 - [ ] Sound effects and music
-- [ ] Particle effects for explosions and muzzle flashes
+- [ ] Team-based combat (Red vs Blue teams)
+- [ ] More detailed particle effects
 
 ## Inspired by Navyfield 1
 

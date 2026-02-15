@@ -9,6 +9,7 @@ var score: int = 0
 var enemy_spawn_timer: float = 0.0
 var enemy_spawn_interval: float = 20.0
 var camera: Camera2D = null
+var minimap: Control = null
 
 # Display constants
 const VELOCITY_TO_KNOTS_FACTOR: float = 10.0  # Conversion factor for game units to nautical knots
@@ -28,6 +29,11 @@ func _ready():
 	camera = $Camera2D
 	if player_ship and camera:
 		camera.position = player_ship.position
+	
+	# Setup minimap
+	minimap = get_node_or_null("UI/HUD/Minimap")
+	if minimap and player_ship:
+		minimap.set_player_ship(player_ship)
 	
 	# Spawn initial enemies
 	spawn_enemy_ship(Vector2(1500, 500))
@@ -49,6 +55,10 @@ func _process(delta):
 		# Update UI
 		_update_hud()
 	
+	# Update minimap with enemy ships
+	if minimap:
+		minimap.set_enemy_ships(enemy_ships)
+	
 	# Clean up destroyed enemy ships from array
 	enemy_ships = enemy_ships.filter(func(ship): return is_instance_valid(ship))
 
@@ -57,9 +67,11 @@ func _update_hud():
 		var health_label = $UI/HUD/ShipStatus/HealthLabel
 		var speed_label = $UI/HUD/ShipStatus/SpeedLabel
 		var ammo_label = $UI/HUD/ShipStatus/AmmoLabel
+		var class_label = $UI/HUD/ShipStatus/ClassLabel
 		
 		if health_label:
-			health_label.text = "Hull Integrity: %d%%" % player_ship.get_health()
+			var health_percent = int((float(player_ship.get_health()) / float(player_ship.get_max_health())) * 100)
+			health_label.text = "Hull Integrity: %d%%" % health_percent
 		if speed_label:
 			var speed_knots = int(player_ship.velocity.length() / VELOCITY_TO_KNOTS_FACTOR)
 			speed_label.text = "Speed: %d knots" % speed_knots
@@ -68,6 +80,8 @@ func _update_hud():
 				ammo_label.text = "Main Guns: Ready"
 			else:
 				ammo_label.text = "Main Guns: Reloading..."
+		if class_label:
+			class_label.text = "Ship: %s" % player_ship.get_ship_class_name()
 	
 	# Update score
 	var score_label = $UI/HUD/ScoreLabel
@@ -79,10 +93,19 @@ func _on_ship_destroyed():
 	# TODO: Implement game over screen
 	get_tree().reload_current_scene()
 
-func spawn_enemy_ship(spawn_position: Vector2):
+func spawn_enemy_ship(spawn_position: Vector2, enemy_class: int = -1):
 	var enemy = enemy_ship_scene.instantiate()
 	add_child(enemy)
 	enemy.global_position = spawn_position
+	
+	# Set random ship class if not specified
+	# Note: Carrier (class 3) excluded from random spawning as it's designed for player use
+	# Enemies use Destroyer (0), Cruiser (1), or Battleship (2) for balanced combat
+	const NUM_SPAWNABLE_ENEMY_CLASSES = 3
+	if enemy_class == -1:
+		enemy_class = randi() % NUM_SPAWNABLE_ENEMY_CLASSES
+	enemy.ship_class = enemy_class
+	
 	enemy.connect("enemy_destroyed", _on_enemy_destroyed)
 	enemy_ships.append(enemy)
 	print("Enemy ship spawned at: %s" % spawn_position)
