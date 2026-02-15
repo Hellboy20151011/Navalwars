@@ -28,6 +28,7 @@ func _on_login_button_pressed():
 		$CenterContainer/VBoxContainer/ErrorLabel.show()
 
 func _input(event):
-	# Allow Enter key to login
+	# Allow Enter key to login only when username field has focus
 	if event is InputEventKey and event.pressed and event.keycode == KEY_ENTER:
-		_on_login_button_pressed()
+		if $CenterContainer/VBoxContainer/UsernameInput.has_focus() or $CenterContainer/VBoxContainer/PasswordInput.has_focus():
+			_on_login_button_pressed()

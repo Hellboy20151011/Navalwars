@@ -55,12 +55,13 @@ func _connect_buttons():
 
 # Ship class navigation
 func _on_prev_ship_class():
-	player_ship_config["ship_class"] = (player_ship_config["ship_class"] - 1 + 4) % 4
+	var size = ship_class_names.size()
+	player_ship_config["ship_class"] = (player_ship_config["ship_class"] - 1 + size) % size
 	_update_ship_display()
 	_update_configuration_panel()
 
 func _on_next_ship_class():
-	player_ship_config["ship_class"] = (player_ship_config["ship_class"] + 1) % 4
+	player_ship_config["ship_class"] = (player_ship_config["ship_class"] + 1) % ship_class_names.size()
 	_update_ship_display()
 	_update_configuration_panel()
 
