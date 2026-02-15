@@ -4,6 +4,8 @@ extends Area2D
 @export var damage: int = 10
 @export var lifetime: float = 5.0
 
+var shooter: Node = null
+
 func _ready():
 	# Auto-delete after lifetime
 	await get_tree().create_timer(lifetime).timeout
@@ -14,7 +16,8 @@ func _physics_process(delta):
 	position += Vector2(0, -speed).rotated(rotation) * delta
 
 func _on_body_entered(body):
-	# Hit a ship
-	if body.has_method("take_damage"):
+	# Hit a ship (but not the one that fired it)
+	if body != shooter and body.has_method("take_damage"):
 		body.take_damage(damage)
-	queue_free()
+	if body != shooter:
+		queue_free()

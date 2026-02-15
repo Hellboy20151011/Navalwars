@@ -60,6 +60,7 @@ func fire_weapon():
 	bullet.position = position + Vector2(0, -30).rotated(rotation)
 	bullet.rotation = rotation
 	bullet.damage = bullet_damage
+	bullet.shooter = self
 	get_parent().add_child(bullet)
 	
 	# Reset fire cooldown

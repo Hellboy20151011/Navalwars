@@ -3,6 +3,7 @@ extends Node2D
 @export var enemy_scene: PackedScene
 @export var spawn_interval: float = 5.0
 @export var max_enemies: int = 3
+@export var spawn_margin: float = 100.0
 
 var spawn_timer: float = 0.0
 
@@ -25,8 +26,9 @@ func _process(delta):
 func spawn_enemy():
 	var enemy = enemy_scene.instantiate()
 	
-	# Random spawn position at the top of the screen
-	var spawn_x = randf_range(100, 1180)
+	# Get viewport dimensions
+	var viewport_rect = get_viewport_rect()
+	var spawn_x = randf_range(spawn_margin, viewport_rect.size.x - spawn_margin)
 	var spawn_y = randf_range(50, 200)
 	
 	enemy.position = Vector2(spawn_x, spawn_y)
