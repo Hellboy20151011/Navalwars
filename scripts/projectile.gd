@@ -36,15 +36,17 @@ func _physics_process(delta):
 
 func _update_trail():
 	var trail = $Trail
-	if trail:
-		# Add point to trail
-		var local_pos = to_local(position - velocity.normalized() * 10)
-		if trail.get_point_count() < 10:
-			trail.add_point(local_pos)
-		else:
-			# Remove oldest point and add new one
-			trail.remove_point(0)
-			trail.add_point(local_pos)
+	if not trail:
+		return
+		
+	# Add point to trail
+	var local_pos = to_local(position - velocity.normalized() * 10)
+	if trail.get_point_count() < 10:
+		trail.add_point(local_pos)
+	else:
+		# Remove oldest point and add new one
+		trail.remove_point(0)
+		trail.add_point(local_pos)
 
 func _on_body_entered(body):
 	if body.has_method("take_damage"):

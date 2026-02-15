@@ -21,6 +21,13 @@ var can_fire_secondary_guns: bool = true
 # Preload projectile scene
 var projectile_scene = preload("res://scenes/projectile.tscn")
 
+# Public getter methods for game manager
+func get_health() -> int:
+	return health
+
+func get_can_fire_main_guns() -> bool:
+	return can_fire_main_guns
+
 func _ready():
 	health = max_health
 	print("Ship initialized with %d health" % health)

@@ -82,7 +82,7 @@ Navalwars/
 ## Future Development
 
 - [ ] Multiple ship classes (Destroyer, Cruiser, Battleship, Carrier)
-- [ ] Enemy AI ships
+- [ ] Advanced AI formations and tactics
 - [ ] Multiplayer support
 - [ ] Additional weapon types (torpedoes, depth charges, aircraft)
 - [ ] Port and repair systems
@@ -90,6 +90,7 @@ Navalwars/
 - [ ] Ship upgrades and customization
 - [ ] Realistic water shader effects
 - [ ] Sound effects and music
+- [ ] Particle effects for explosions and muzzle flashes
 
 ## Inspired by Navyfield 1
 

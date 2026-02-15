@@ -50,18 +50,18 @@ func _process(delta):
 	enemy_ships = enemy_ships.filter(func(ship): return is_instance_valid(ship))
 
 func _update_hud():
-	if player_ship:
+	if player_ship and is_instance_valid(player_ship):
 		var health_label = $UI/HUD/ShipStatus/HealthLabel
 		var speed_label = $UI/HUD/ShipStatus/SpeedLabel
 		var ammo_label = $UI/HUD/ShipStatus/AmmoLabel
 		
 		if health_label:
-			health_label.text = "Hull Integrity: %d%%" % player_ship.health
+			health_label.text = "Hull Integrity: %d%%" % player_ship.get_health()
 		if speed_label:
 			var speed_knots = int(player_ship.velocity.length() / 10.0)
 			speed_label.text = "Speed: %d knots" % speed_knots
 		if ammo_label:
-			if player_ship.can_fire_main_guns:
+			if player_ship.get_can_fire_main_guns():
 				ammo_label.text = "Main Guns: Ready"
 			else:
 				ammo_label.text = "Main Guns: Reloading..."
