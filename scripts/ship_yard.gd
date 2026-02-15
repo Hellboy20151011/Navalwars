@@ -55,7 +55,7 @@ func _connect_buttons():
 
 # Ship class navigation
 func _on_prev_ship_class():
-	player_ship_config["ship_class"] = (player_ship_config["ship_class"] - 1) % 4
+	player_ship_config["ship_class"] = (player_ship_config["ship_class"] - 1 + 4) % 4
 	_update_ship_display()
 	_update_configuration_panel()
 
@@ -66,7 +66,8 @@ func _on_next_ship_class():
 
 # Weapon configuration
 func _on_prev_main_gun():
-	player_ship_config["main_gun_type"] = (player_ship_config["main_gun_type"] - 1) % gun_types.size()
+	var size = gun_types.size()
+	player_ship_config["main_gun_type"] = (player_ship_config["main_gun_type"] - 1 + size) % size
 	_update_configuration_panel()
 
 func _on_next_main_gun():
@@ -74,7 +75,8 @@ func _on_next_main_gun():
 	_update_configuration_panel()
 
 func _on_prev_sec_gun():
-	player_ship_config["secondary_gun_type"] = (player_ship_config["secondary_gun_type"] - 1) % gun_types.size()
+	var size = gun_types.size()
+	player_ship_config["secondary_gun_type"] = (player_ship_config["secondary_gun_type"] - 1 + size) % size
 	_update_configuration_panel()
 
 func _on_next_sec_gun():
@@ -83,7 +85,8 @@ func _on_next_sec_gun():
 
 # Engine configuration
 func _on_prev_engine():
-	player_ship_config["engine_type"] = (player_ship_config["engine_type"] - 1) % engine_types.size()
+	var size = engine_types.size()
+	player_ship_config["engine_type"] = (player_ship_config["engine_type"] - 1 + size) % size
 	_update_configuration_panel()
 
 func _on_next_engine():
@@ -92,7 +95,8 @@ func _on_next_engine():
 
 # Fire control configuration
 func _on_prev_fcs():
-	player_ship_config["fire_control_type"] = (player_ship_config["fire_control_type"] - 1) % fire_control_types.size()
+	var size = fire_control_types.size()
+	player_ship_config["fire_control_type"] = (player_ship_config["fire_control_type"] - 1 + size) % size
 	_update_configuration_panel()
 
 func _on_next_fcs():
