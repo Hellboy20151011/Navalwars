@@ -1,8 +1,11 @@
 extends CharacterBody2D
 # Enemy Ship AI - Navyfield 1 inspired AI behavior
-# Features: Target detection, pursuit, evasion, and combat
+# Features: Target detection, pursuit, evasion, and combat, ship classes
 
 signal enemy_destroyed
+
+# Ship class system
+@export var ship_class: int = 1  # 0=Destroyer, 1=Cruiser, 2=Battleship
 
 # Ship stats
 @export var max_health: int = 80
@@ -18,9 +21,11 @@ var target: Node2D = null
 var can_fire_main_guns: bool = true
 var can_fire_secondary_guns: bool = true
 var ai_state: String = "patrol"  # patrol, engage, evade
+var ship_class_name: String = "Cruiser"
 
-# Preload projectile scene
+# Preload projectile scene and ship classes
 var projectile_scene = preload("res://scenes/projectile.tscn")
+var ShipClasses = preload("res://scripts/ship_classes.gd")
 
 # AI parameters
 var patrol_point: Vector2
@@ -29,9 +34,30 @@ var optimal_range: float = 500.0
 const FIRING_ANGLE_TOLERANCE: float = 17.0  # Degrees - represents gun turret rotation limits
 
 func _ready():
+	# Apply ship class stats
+	_apply_ship_class_stats()
 	health = max_health
 	patrol_point = global_position + Vector2(randf_range(-500, 500), randf_range(-500, 500))
-	print("Enemy ship spawned at position: %s" % global_position)
+	print("Enemy %s spawned at position: %s" % [ship_class_name, global_position])
+
+func _apply_ship_class_stats():
+	# Get ship class data and apply to this enemy ship
+	var class_data = ShipClasses.get_ship_class_data(ship_class)
+	
+	ship_class_name = class_data.class_name
+	max_health = class_data.max_health
+	max_speed = class_data.max_speed
+	acceleration = class_data.acceleration
+	turn_speed = class_data.turn_speed
+	main_gun_damage = class_data.main_gun_damage
+	secondary_gun_damage = class_data.secondary_gun_damage
+	
+	# Apply visual scale
+	var ship_scale = ShipClasses.get_ship_scale(ship_class)
+	scale = ship_scale
+	
+	# Set different color for enemies (darker)
+	modulate = Color(0.8, 0.6, 0.6)
 
 func _physics_process(delta):
 	match ai_state:
