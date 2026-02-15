@@ -26,6 +26,7 @@ var projectile_scene = preload("res://scenes/projectile.tscn")
 var patrol_point: Vector2
 var engagement_range: float = 800.0
 var optimal_range: float = 500.0
+const FIRING_ANGLE_TOLERANCE: float = 17.0  # Degrees - represents gun turret rotation limits
 
 func _ready():
 	health = max_health
@@ -111,7 +112,7 @@ func _attempt_fire_weapons(direction_to_target: Vector2):
 	var gun_direction = Vector2(0, -1).rotated(rotation)
 	var aim_angle = gun_direction.angle_to(direction_to_target)
 	
-	if abs(aim_angle) < deg_to_rad(17):  # Within 17 degrees
+	if abs(aim_angle) < deg_to_rad(FIRING_ANGLE_TOLERANCE):
 		if can_fire_main_guns and randf() < 0.3:
 			fire_main_guns()
 		if can_fire_secondary_guns and randf() < 0.5:

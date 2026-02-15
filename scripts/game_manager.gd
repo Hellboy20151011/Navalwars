@@ -10,6 +10,9 @@ var enemy_spawn_timer: float = 0.0
 var enemy_spawn_interval: float = 20.0
 var camera: Camera2D = null
 
+# Display constants
+const VELOCITY_TO_KNOTS_FACTOR: float = 10.0  # Conversion factor for game units to nautical knots
+
 # Preload enemy ship scene
 var enemy_ship_scene = preload("res://scenes/enemy_ship.tscn")
 
@@ -58,7 +61,7 @@ func _update_hud():
 		if health_label:
 			health_label.text = "Hull Integrity: %d%%" % player_ship.get_health()
 		if speed_label:
-			var speed_knots = int(player_ship.velocity.length() / 10.0)
+			var speed_knots = int(player_ship.velocity.length() / VELOCITY_TO_KNOTS_FACTOR)
 			speed_label.text = "Speed: %d knots" % speed_knots
 		if ammo_label:
 			if player_ship.get_can_fire_main_guns():
