@@ -1,0 +1,89 @@
+[gd_scene load_steps=2 format=3 uid="uid://battle_menu_001"]
+
+[ext_resource type="Script" path="res://scripts/battle_menu.gd" id="1_battlemenu"]
+
+[node name="BattleMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_battlemenu")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.12, 0.12, 0.18, 1)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
+layout_mode = 2
+theme_override_constants/separation = 30
+
+[node name="TitleLabel" type="Label" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 48
+text = "BATTLE MENU"
+horizontal_alignment = 1
+
+[node name="Spacer1" type="Control" parent="CenterContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+
+[node name="ShipInfoLabel" type="Label" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Your Ship: Cruiser"
+horizontal_alignment = 1
+
+[node name="Spacer2" type="Control" parent="CenterContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+
+[node name="DescriptionLabel" type="Label" parent="CenterContainer/VBoxContainer"]
+custom_minimum_size = Vector2(600, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Practice your skills against enemy ships
+in a training environment."
+horizontal_alignment = 1
+
+[node name="Spacer3" type="Control" parent="CenterContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+
+[node name="PracticeBattleButton" type="Button" parent="CenterContainer/VBoxContainer"]
+custom_minimum_size = Vector2(500, 80)
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "START PRACTICE BATTLE"
+
+[node name="Spacer4" type="Control" parent="CenterContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+
+[node name="ReturnButton" type="Button" parent="CenterContainer/VBoxContainer"]
+custom_minimum_size = Vector2(500, 60)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "RETURN TO SHIP YARD"
+
+[node name="MapInfoLabel" type="Label" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+text = "Test Map: Ocean Training Grounds
+Enemy Ships: 2 practice targets"
+horizontal_alignment = 1

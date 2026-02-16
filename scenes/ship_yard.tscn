@@ -1,0 +1,295 @@
+[gd_scene load_steps=2 format=3 uid="uid://ship_yard_001"]
+
+[ext_resource type="Script" path="res://scripts/ship_yard.gd" id="1_shipyard"]
+
+[node name="ShipYard" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_shipyard")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.15, 0.15, 0.2, 1)
+
+[node name="UI" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Title" type="Label" parent="UI"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -200.0
+offset_top = 20.0
+offset_right = 200.0
+offset_bottom = 70.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 36
+text = "SHIP YARD - DRY DOCK"
+horizontal_alignment = 1
+
+[node name="ShipDisplay" type="Control" parent="UI"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -400.0
+offset_top = -300.0
+offset_right = 400.0
+offset_bottom = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="DockBackground" type="ColorRect" parent="UI/ShipDisplay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.2, 0.25, 0.3, 1)
+
+[node name="ShipVisual" type="ColorRect" parent="UI/ShipDisplay"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -100.0
+offset_top = -40.0
+offset_right = 100.0
+offset_bottom = 40.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.5, 0.7, 0.5, 1)
+
+[node name="ShipNameLabel" type="Label" parent="UI/ShipDisplay"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -100.0
+offset_top = -40.0
+offset_right = 100.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_font_sizes/font_size = 24
+text = "Cruiser"
+horizontal_alignment = 1
+
+[node name="ConfigPanel" type="VBoxContainer" parent="UI"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -500.0
+offset_top = -400.0
+offset_right = -50.0
+offset_bottom = 400.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_constants/separation = 20
+
+[node name="ConfigTitle" type="Label" parent="UI/ConfigPanel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "SHIP CONFIGURATION"
+horizontal_alignment = 1
+
+[node name="Separator1" type="HSeparator" parent="UI/ConfigPanel"]
+layout_mode = 2
+
+[node name="ShipClassSection" type="VBoxContainer" parent="UI/ConfigPanel"]
+layout_mode = 2
+
+[node name="SectionTitle" type="Label" parent="UI/ConfigPanel/ShipClassSection"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "SHIP CLASS"
+
+[node name="ClassLabel" type="Label" parent="UI/ConfigPanel/ShipClassSection"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Ship Class: Cruiser"
+
+[node name="ButtonContainer" type="HBoxContainer" parent="UI/ConfigPanel/ShipClassSection"]
+layout_mode = 2
+
+[node name="PrevClassButton" type="Button" parent="UI/ConfigPanel/ShipClassSection/ButtonContainer"]
+custom_minimum_size = Vector2(100, 40)
+layout_mode = 2
+text = "< PREV"
+
+[node name="NextClassButton" type="Button" parent="UI/ConfigPanel/ShipClassSection/ButtonContainer"]
+custom_minimum_size = Vector2(100, 40)
+layout_mode = 2
+text = "NEXT >"
+
+[node name="Separator2" type="HSeparator" parent="UI/ConfigPanel"]
+layout_mode = 2
+
+[node name="WeaponsSection" type="VBoxContainer" parent="UI/ConfigPanel"]
+layout_mode = 2
+
+[node name="SectionTitle" type="Label" parent="UI/ConfigPanel/WeaponsSection"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "WEAPONS"
+
+[node name="MainGunLabel" type="Label" parent="UI/ConfigPanel/WeaponsSection"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Main Guns: Standard Guns"
+
+[node name="MainGunButtons" type="HBoxContainer" parent="UI/ConfigPanel/WeaponsSection"]
+layout_mode = 2
+
+[node name="PrevMainGunButton" type="Button" parent="UI/ConfigPanel/WeaponsSection/MainGunButtons"]
+custom_minimum_size = Vector2(100, 40)
+layout_mode = 2
+text = "< PREV"
+
+[node name="NextMainGunButton" type="Button" parent="UI/ConfigPanel/WeaponsSection/MainGunButtons"]
+custom_minimum_size = Vector2(100, 40)
+layout_mode = 2
+text = "NEXT >"
+
+[node name="SecGunLabel" type="Label" parent="UI/ConfigPanel/WeaponsSection"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Secondary Guns: Standard Guns"
+
+[node name="SecGunButtons" type="HBoxContainer" parent="UI/ConfigPanel/WeaponsSection"]
+layout_mode = 2
+
+[node name="PrevSecGunButton" type="Button" parent="UI/ConfigPanel/WeaponsSection/SecGunButtons"]
+custom_minimum_size = Vector2(100, 40)
+layout_mode = 2
+text = "< PREV"
+
+[node name="NextSecGunButton" type="Button" parent="UI/ConfigPanel/WeaponsSection/SecGunButtons"]
+custom_minimum_size = Vector2(100, 40)
+layout_mode = 2
+text = "NEXT >"
+
+[node name="Separator3" type="HSeparator" parent="UI/ConfigPanel"]
+layout_mode = 2
+
+[node name="PropulsionSection" type="VBoxContainer" parent="UI/ConfigPanel"]
+layout_mode = 2
+
+[node name="SectionTitle" type="Label" parent="UI/ConfigPanel/PropulsionSection"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "PROPULSION"
+
+[node name="EngineLabel" type="Label" parent="UI/ConfigPanel/PropulsionSection"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Engine: Standard Engine"
+
+[node name="EngineButtons" type="HBoxContainer" parent="UI/ConfigPanel/PropulsionSection"]
+layout_mode = 2
+
+[node name="PrevEngineButton" type="Button" parent="UI/ConfigPanel/PropulsionSection/EngineButtons"]
+custom_minimum_size = Vector2(100, 40)
+layout_mode = 2
+text = "< PREV"
+
+[node name="NextEngineButton" type="Button" parent="UI/ConfigPanel/PropulsionSection/EngineButtons"]
+custom_minimum_size = Vector2(100, 40)
+layout_mode = 2
+text = "NEXT >"
+
+[node name="Separator4" type="HSeparator" parent="UI/ConfigPanel"]
+layout_mode = 2
+
+[node name="FireControlSection" type="VBoxContainer" parent="UI/ConfigPanel"]
+layout_mode = 2
+
+[node name="SectionTitle" type="Label" parent="UI/ConfigPanel/FireControlSection"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "FIRE CONTROL SYSTEM"
+
+[node name="FCSLabel" type="Label" parent="UI/ConfigPanel/FireControlSection"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Fire Control: Basic FCS"
+
+[node name="FCSButtons" type="HBoxContainer" parent="UI/ConfigPanel/FireControlSection"]
+layout_mode = 2
+
+[node name="PrevFCSButton" type="Button" parent="UI/ConfigPanel/FireControlSection/FCSButtons"]
+custom_minimum_size = Vector2(100, 40)
+layout_mode = 2
+text = "< PREV"
+
+[node name="NextFCSButton" type="Button" parent="UI/ConfigPanel/FireControlSection/FCSButtons"]
+custom_minimum_size = Vector2(100, 40)
+layout_mode = 2
+text = "NEXT >"
+
+[node name="Separator5" type="HSeparator" parent="UI/ConfigPanel"]
+layout_mode = 2
+
+[node name="CrewSection" type="VBoxContainer" parent="UI/ConfigPanel"]
+layout_mode = 2
+
+[node name="SectionTitle" type="Label" parent="UI/ConfigPanel/CrewSection"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "CREW ASSIGNMENT"
+
+[node name="CrewStatusLabel" type="Label" parent="UI/ConfigPanel/CrewSection"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Crew: NOT ASSIGNED"
+
+[node name="AssignCrewButton" type="Button" parent="UI/ConfigPanel/CrewSection"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "ASSIGN CREW"
+
+[node name="BottomPanel" type="HBoxContainer" parent="UI"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -200.0
+offset_top = -100.0
+offset_right = 200.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="BattleButton" type="Button" parent="UI/BottomPanel"]
+custom_minimum_size = Vector2(400, 80)
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "ENTER BATTLE"
