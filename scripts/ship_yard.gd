@@ -21,6 +21,14 @@ var fire_control_types = ["Basic FCS", "Advanced FCS", "Tactical FCS"]
 func _ready():
 	print("Ship Yard initialized")
 	
+	# Load saved configuration from GameState if available
+	var saved_config = GameState.get_ship_config()
+	if saved_config != null and not saved_config.is_empty():
+		player_ship_config = saved_config
+		print("Loaded ship config from GameState: %s" % player_ship_config)
+	else:
+		print("Using default ship config")
+	
 	# Connect UI buttons
 	_connect_buttons()
 	
