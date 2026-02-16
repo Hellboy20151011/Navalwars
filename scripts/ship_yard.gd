@@ -22,6 +22,7 @@ func _ready():
 	print("Ship Yard initialized")
 	
 	# Load saved configuration from GameState if available
+	# Note: GameState.get_ship_config() already returns a deep copy
 	var saved_config = GameState.get_ship_config()
 	if saved_config != null and not saved_config.is_empty():
 		player_ship_config = saved_config
