@@ -7,6 +7,8 @@ signal enemy_destroyed
 const FIRING_ANGLE_TOLERANCE: float = 17.0  # Degrees - represents gun turret rotation limits
 const PROJECTILE_SCENE = preload("res://scenes/projectile.tscn")
 const EXPLOSION_SCENE = preload("res://scenes/explosion.tscn")
+const MIN_DAMAGE_MULTIPLIER: float = 0.2  # Minimum fraction of damage after armor absorption
+const ARMOR_SCALE: float = 100.0          # Divisor that converts armor rating to damage multiplier
 
 # Ship class system
 @export var ship_class: int = 1  # 0=Destroyer, 1=Cruiser, 2=Battleship
@@ -26,6 +28,8 @@ var can_fire_main_guns: bool = true
 var can_fire_secondary_guns: bool = true
 var ai_state: String = "patrol"  # patrol, engage, evade
 var ship_class_name: String = "Cruiser"
+var armor: int = 0  # Armor rating from ship class data
+var class_data = null  # ShipClassData instance for ballistic parameters
 
 # AI parameters
 var patrol_point: Vector2
@@ -53,7 +57,7 @@ func _ready():
 
 func _apply_ship_class_stats():
 	# Get ship class data and apply to this enemy ship
-	var class_data = ShipClasses.get_ship_class_data(ship_class)
+	class_data = ShipClasses.get_ship_class_data(ship_class)
 
 	ship_class_name = class_data.ship_name
 	max_health = class_data.max_health
@@ -62,6 +66,7 @@ func _apply_ship_class_stats():
 	turn_speed = class_data.turn_speed
 	main_gun_damage = class_data.main_gun_damage
 	secondary_gun_damage = class_data.secondary_gun_damage
+	armor = class_data.armor
 
 	# Apply visual scale
 	var ship_scale = ShipClasses.get_ship_scale(ship_class)
@@ -169,9 +174,14 @@ func fire_main_guns():
 	can_fire_main_guns = false
 	main_gun_timer.start()
 
+	# Get ballistic parameters from ship class data
+	var gun_speed := class_data.main_gun_speed if class_data else 550.0
+	var gun_drag := class_data.main_gun_drag if class_data else 0.0
+	var disp := class_data.main_gun_dispersion if class_data else 0.017
+
 	# Spawn projectiles
-	_spawn_projectile(Vector2(0, -25), main_gun_damage, 550.0)
-	_spawn_projectile(Vector2(0, 25), main_gun_damage, 550.0)
+	_spawn_projectile(Vector2(0, -25), main_gun_damage, gun_speed, gun_drag, disp)
+	_spawn_projectile(Vector2(0, 25), main_gun_damage, gun_speed, gun_drag, disp)
 
 
 func fire_secondary_guns():
@@ -181,17 +191,24 @@ func fire_secondary_guns():
 	can_fire_secondary_guns = false
 	secondary_gun_timer.start()
 
+	# Get ballistic parameters for secondary guns
+	var gun_speed := class_data.secondary_gun_speed if class_data else 650.0
+	var gun_drag := class_data.secondary_gun_drag if class_data else 0.0
+	var disp := class_data.secondary_gun_dispersion if class_data else 0.035
+
 	# Spawn projectiles
-	_spawn_projectile(Vector2(-12, -8), secondary_gun_damage, 650.0)
-	_spawn_projectile(Vector2(12, -8), secondary_gun_damage, 650.0)
+	_spawn_projectile(Vector2(-12, -8), secondary_gun_damage, gun_speed, gun_drag, disp)
+	_spawn_projectile(Vector2(12, -8), secondary_gun_damage, gun_speed, gun_drag, disp)
 
 
-func _spawn_projectile(offset: Vector2, damage: int, speed: float):
+func _spawn_projectile(offset: Vector2, damage: int, speed: float, drag: float = 0.0, dispersion: float = 0.0):
 	var projectile = PROJECTILE_SCENE.instantiate()
 	get_parent().add_child(projectile)
 
 	var spawn_pos = global_position + offset.rotated(rotation)
-	projectile.initialize(spawn_pos, rotation, speed, damage, 1)  # Only hit player (layer 1)
+	# Apply angular dispersion for realistic scatter
+	var dispersed_angle := rotation + randf_range(-dispersion, dispersion)
+	projectile.initialize(spawn_pos, dispersed_angle, speed, damage, 1, drag)  # Only hit player (layer 1)
 
 
 func _on_main_gun_timer_timeout():
@@ -230,8 +247,10 @@ func _on_detection_area_body_exited(body):
 
 
 func take_damage(amount: int):
-	health -= amount
-	print("Enemy ship took %d damage.\nHealth: %d/%d" % [amount, health, max_health])
+	# Armor reduces incoming damage; heavier armor deflects more
+	var reduced := max(1, int(float(amount) * max(MIN_DAMAGE_MULTIPLIER, 1.0 - float(armor) / ARMOR_SCALE)))
+	health -= reduced
+	print("Enemy ship took %d damage (%d after armor %d).\nHealth: %d/%d" % [amount, reduced, armor, health, max_health])
 
 	if health <= 0:
 		_destroy_ship()

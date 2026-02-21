@@ -8,10 +8,12 @@ const EXPLOSION_SCENE = preload("res://scenes/explosion.tscn")
 @export var damage: int = 25
 @export var speed: float = 500.0
 @export var piercing: bool = false
+@export var drag_coefficient: float = 0.0  # Air resistance: velocity decay per second (1/s)
 
 var velocity: Vector2 = Vector2.ZERO
 var travel_distance: float = 0.0
 var max_range: float = 2000.0
+var initial_speed: float = 0.0  # Muzzle velocity for penetration calculation
 
 @onready var trail_node: Line2D = $Trail
 @onready var life_timer: Timer = $LifeTimer
@@ -35,7 +37,8 @@ func initialize(
 	direction: float,
 	projectile_speed: float,
 	projectile_damage: int,
-	hit_mask: int = 3
+	hit_mask: int = 3,
+	drag: float = 0.0
 ):
 	position = start_position
 	rotation = direction
@@ -43,9 +46,15 @@ func initialize(
 	damage = projectile_damage
 	velocity = Vector2(0, -speed).rotated(direction)
 	collision_mask = hit_mask
+	drag_coefficient = drag
+	initial_speed = projectile_speed
 
 
 func _physics_process(delta):
+	# Apply air resistance (drag): velocity decays exponentially over time
+	if drag_coefficient > 0.0:
+		velocity *= max(1.0 - drag_coefficient * delta, 0.0)
+
 	# Move projectile
 	position += velocity * delta
 	travel_distance += velocity.length() * delta
@@ -74,8 +83,13 @@ func _update_trail():
 
 func _on_body_entered(body):
 	if body.has_method("take_damage"):
-		body.take_damage(damage)
-		print("Projectile hit! Dealt %d damage" % damage)
+		# Penetration model: effective damage scales with remaining kinetic energy (KE ∝ v²)
+		var effective_damage := damage
+		if initial_speed > 0.0:
+			var speed_ratio := velocity.length() / initial_speed
+			effective_damage = max(1, int(float(damage) * pow(speed_ratio, 2)))
+		body.take_damage(effective_damage)
+		print("Projectile hit! Dealt %d damage (base: %d)" % [effective_damage, damage])
 	_explode()
 
 

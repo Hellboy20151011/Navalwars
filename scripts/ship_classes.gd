@@ -17,6 +17,14 @@ class ShipClassData:
 	var secondary_gun_damage: int
 	var secondary_gun_reload: float
 	var detection_range: float
+	# Ballistic parameters
+	var main_gun_speed: float       # Muzzle velocity of main gun shells (px/s)
+	var main_gun_drag: float        # Drag coefficient for main gun shells (1/s)
+	var main_gun_dispersion: float  # Half-angle dispersion of main guns (radians)
+	var secondary_gun_speed: float      # Muzzle velocity of secondary shells (px/s)
+	var secondary_gun_drag: float       # Drag coefficient for secondary shells (1/s)
+	var secondary_gun_dispersion: float # Half-angle dispersion of secondary guns (radians)
+	var armor: int                  # Armor rating (reduces incoming damage)
 
 	func _init(
 		p_class_name: String,
@@ -28,7 +36,14 @@ class ShipClassData:
 		p_main_gun_reload: float,
 		p_secondary_gun_damage: int,
 		p_secondary_gun_reload: float,
-		p_detection_range: float
+		p_detection_range: float,
+		p_main_gun_speed: float,
+		p_main_gun_drag: float,
+		p_main_gun_dispersion: float,
+		p_secondary_gun_speed: float,
+		p_secondary_gun_drag: float,
+		p_secondary_gun_dispersion: float,
+		p_armor: int
 	):
 		ship_name = p_class_name
 		max_health = p_max_health
@@ -40,6 +55,13 @@ class ShipClassData:
 		secondary_gun_damage = p_secondary_gun_damage
 		secondary_gun_reload = p_secondary_gun_reload
 		detection_range = p_detection_range
+		main_gun_speed = p_main_gun_speed
+		main_gun_drag = p_main_gun_drag
+		main_gun_dispersion = p_main_gun_dispersion
+		secondary_gun_speed = p_secondary_gun_speed
+		secondary_gun_drag = p_secondary_gun_drag
+		secondary_gun_dispersion = p_secondary_gun_dispersion
+		armor = p_armor
 
 
 # Ship class definitions based on NavyField characteristics
@@ -49,54 +71,86 @@ static func get_ship_class_data(ship_class: ShipClass):
 		ShipClass.DESTROYER:
 			return ShipClassData.new(
 				"Destroyer",
-				60,  # Low health
-				250.0,  # Fast speed
+				60,    # Low health
+				250.0, # Fast speed
 				70.0,  # Quick acceleration
-				2.0,  # Good turn speed
-				30,  # Low main gun damage
-				2.5,  # Fast main gun reload
-				20,  # Moderate secondary damage
-				0.8,  # Very fast secondary reload
-				1000.0  # Good detection
+				2.0,   # Good turn speed
+				30,    # Low main gun damage
+				2.5,   # Fast main gun reload
+				20,    # Moderate secondary damage
+				0.8,   # Very fast secondary reload
+				1000.0,# Good detection
+				# Ballistic parameters
+				650.0, # main_gun_speed: fast light shells
+				0.15,  # main_gun_drag: moderate drag (lighter shells)
+				0.035, # main_gun_dispersion: ±2° (less precise)
+				720.0, # secondary_gun_speed: fast
+				0.20,  # secondary_gun_drag: high drag (small shells)
+				0.052, # secondary_gun_dispersion: ±3°
+				10     # armor: very light
 			)
 		ShipClass.CRUISER:
 			return ShipClassData.new(
 				"Cruiser",
-				100,  # Medium health
-				200.0,  # Medium speed
+				100,   # Medium health
+				200.0, # Medium speed
 				50.0,  # Medium acceleration
-				1.5,  # Medium turn speed
-				50,  # Medium main gun damage
-				3.0,  # Medium main gun reload
-				15,  # Medium secondary damage
-				1.0,  # Medium secondary reload
-				900.0  # Medium detection
+				1.5,   # Medium turn speed
+				50,    # Medium main gun damage
+				3.0,   # Medium main gun reload
+				15,    # Medium secondary damage
+				1.0,   # Medium secondary reload
+				900.0, # Medium detection
+				# Ballistic parameters
+				600.0, # main_gun_speed
+				0.10,  # main_gun_drag: moderate
+				0.017, # main_gun_dispersion: ±1°
+				700.0, # secondary_gun_speed
+				0.15,  # secondary_gun_drag
+				0.035, # secondary_gun_dispersion: ±2°
+				30     # armor: medium
 			)
 		ShipClass.BATTLESHIP:
 			return ShipClassData.new(
 				"Battleship",
-				200,  # High health
-				120.0,  # Slow speed
+				200,   # High health
+				120.0, # Slow speed
 				30.0,  # Slow acceleration
-				1.0,  # Poor turn speed
-				100,  # Very high main gun damage
-				5.0,  # Slow main gun reload
-				25,  # High secondary damage
-				1.5,  # Slow secondary reload
-				800.0  # Lower detection
+				1.0,   # Poor turn speed
+				100,   # Very high main gun damage
+				5.0,   # Slow main gun reload
+				25,    # High secondary damage
+				1.5,   # Slow secondary reload
+				800.0, # Lower detection
+				# Ballistic parameters
+				762.0, # main_gun_speed: high muzzle velocity (WW2 battleship ~762 m/s)
+				0.05,  # main_gun_drag: very low (heavy shells retain speed)
+				0.009, # main_gun_dispersion: ±0.5° (very precise)
+				650.0, # secondary_gun_speed
+				0.10,  # secondary_gun_drag
+				0.017, # secondary_gun_dispersion: ±1°
+				60     # armor: heavy
 			)
 		ShipClass.CARRIER:
 			return ShipClassData.new(
 				"Carrier",
-				150,  # Medium-high health
-				150.0,  # Medium-slow speed
+				150,   # Medium-high health
+				150.0, # Medium-slow speed
 				35.0,  # Slow acceleration
-				1.2,  # Poor turn speed
-				10,  # Minimal main gun damage
-				4.0,  # Slow main gun reload
-				10,  # Low secondary damage
-				1.2,  # Medium secondary reload
-				1200.0  # Excellent detection
+				1.2,   # Poor turn speed
+				10,    # Minimal main gun damage
+				4.0,   # Slow main gun reload
+				10,    # Low secondary damage
+				1.2,   # Medium secondary reload
+				1200.0,# Excellent detection
+				# Ballistic parameters
+				500.0, # main_gun_speed: slow defensive guns
+				0.12,  # main_gun_drag
+				0.026, # main_gun_dispersion: ±1.5°
+				680.0, # secondary_gun_speed
+				0.15,  # secondary_gun_drag
+				0.035, # secondary_gun_dispersion: ±2°
+				20     # armor: light
 			)
 		_:
 			# Default to cruiser
