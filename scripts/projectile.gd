@@ -11,6 +11,8 @@ var travel_distance: float = 0.0
 var max_range: float = 2000.0
 var trail_node: Line2D = null
 
+const IMPACT_MARKER_FADE_DURATION: float = 3.0
+
 func _ready():
 	# Set collision layers
 	collision_layer = 4  # Projectile layer
@@ -68,5 +70,19 @@ func _explode():
 	explosion.global_position = global_position
 	explosion.explosion_radius = 25.0
 	explosion.explosion_duration = 0.5
+	
+	# Create impact marker: small green circle that fades out
+	var marker = Node2D.new()
+	get_parent().add_child(marker)
+	marker.global_position = global_position
+	marker.z_index = 6
+	marker.draw.connect(func():
+		marker.draw_circle(Vector2.ZERO, 8.0, Color(0.0, 0.9, 0.2, 0.85))
+		marker.draw_arc(Vector2.ZERO, 11.0, 0.0, TAU, 32, Color(0.0, 1.0, 0.0, 1.0), 2.0)
+	)
+	marker.queue_redraw()
+	var tween = marker.create_tween()
+	tween.tween_property(marker, "modulate", Color(1, 1, 1, 0), IMPACT_MARKER_FADE_DURATION)
+	tween.tween_callback(marker.queue_free)
 	
 	queue_free()
