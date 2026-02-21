@@ -28,9 +28,8 @@ var ship_class_name: String = "Cruiser"
 @onready var ai_timer: Timer = $AITimer
 @onready var detection_area: Area2D = $DetectionArea
 
-# Preload projectile scene and ship classes
+# Preload projectile scene
 var projectile_scene = preload("res://scenes/projectile.tscn")
-var ship_classes = preload("res://scripts/ship_classes.gd")
 
 # AI parameters
 var patrol_point: Vector2
@@ -52,7 +51,7 @@ func _ready():
 
 func _apply_ship_class_stats():
 	# Get ship class data and apply to this enemy ship
-	var class_data = ship_classes.get_ship_class_data(ship_class)
+	var class_data = ShipClasses.get_ship_class_data(ship_class)
 	
 	ship_class_name = class_data.ship_name
 	max_health = class_data.max_health
@@ -63,7 +62,7 @@ func _apply_ship_class_stats():
 	secondary_gun_damage = class_data.secondary_gun_damage
 	
 	# Apply visual scale
-	var ship_scale = ship_classes.get_ship_scale(ship_class)
+	var ship_scale = ShipClasses.get_ship_scale(ship_class)
 	scale = ship_scale
 	
 	# Set different color for enemies (darker)

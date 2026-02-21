@@ -1,5 +1,6 @@
 # Ship Class Definitions
 # Defines stats and characteristics for different NavyField ship classes
+class_name ShipClasses
 
 enum ShipClass {
 	DESTROYER,
