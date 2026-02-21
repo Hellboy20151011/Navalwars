@@ -11,7 +11,7 @@ enum ShipClass {
 
 # Ship class data structure
 class ShipClassData:
-	var class_name: String
+	var ship_name: String
 	var max_health: int
 	var max_speed: float
 	var acceleration: float
@@ -36,7 +36,7 @@ class ShipClassData:
 		p_detection_range: float,
 		p_ship_color: Color
 	):
-		class_name = p_class_name
+		ship_name = p_class_name
 		max_health = p_max_health
 		max_speed = p_max_speed
 		acceleration = p_acceleration
