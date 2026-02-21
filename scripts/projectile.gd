@@ -21,12 +21,13 @@ func _ready():
 	# Cache trail node reference
 	trail_node = $Trail
 
-func initialize(start_position: Vector2, direction: float, projectile_speed: float, projectile_damage: int):
+func initialize(start_position: Vector2, direction: float, projectile_speed: float, projectile_damage: int, hit_mask: int = 3):
 	position = start_position
 	rotation = direction
 	speed = projectile_speed
 	damage = projectile_damage
 	velocity = Vector2(0, -speed).rotated(direction)
+	collision_mask = hit_mask
 
 func _physics_process(delta):
 	# Move projectile

@@ -234,4 +234,4 @@ func _spawn_projectile(offset: Vector2, fire_angle: float, damage: int, speed: f
 	
 	# Calculate spawn position (turret position)
 	var spawn_pos = global_position + offset.rotated(rotation)
-	projectile.initialize(spawn_pos, fire_angle, speed, damage)
+	projectile.initialize(spawn_pos, fire_angle, speed, damage, 2)  # Only hit enemies (layer 2)

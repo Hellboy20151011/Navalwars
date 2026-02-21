@@ -171,7 +171,7 @@ func _spawn_projectile(offset: Vector2, damage: int, speed: float):
 	get_parent().add_child(projectile)
 	
 	var spawn_pos = global_position + offset.rotated(rotation)
-	projectile.initialize(spawn_pos, rotation, speed, damage)
+	projectile.initialize(spawn_pos, rotation, speed, damage, 1)  # Only hit player (layer 1)
 
 func _on_main_gun_timer_timeout():
 	can_fire_main_guns = true
