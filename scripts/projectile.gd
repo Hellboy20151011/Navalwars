@@ -14,6 +14,7 @@ var velocity: Vector2 = Vector2.ZERO
 var travel_distance: float = 0.0
 var max_range: float = 2000.0
 var initial_speed: float = 0.0  # Muzzle velocity for penetration calculation
+var exploded := false
 
 @onready var trail_node: Line2D = $Trail
 @onready var life_timer: Timer = $LifeTimer
@@ -51,9 +52,12 @@ func initialize(
 
 
 func _physics_process(delta):
+	if exploded:
+		return
+
 	# Apply air resistance (drag): velocity decays exponentially over time
 	if drag_coefficient > 0.0:
-		velocity *= max(1.0 - drag_coefficient * delta, 0.0)
+		velocity *= exp(-drag_coefficient * delta)
 
 	# Move projectile
 	position += velocity * delta
@@ -71,8 +75,10 @@ func _update_trail():
 	if not trail_node:
 		return
 
-	# Add point to trail
-	var local_pos = to_local(global_position - velocity.normalized() * 10)
+	# Add point to trail (local space: projectile is the parent)
+	var local_pos := Vector2.ZERO
+	if velocity.length() > 0.001:
+		local_pos = -velocity.normalized() * 10.0
 	if trail_node.get_point_count() < 10:
 		trail_node.add_point(local_pos)
 	else:
@@ -86,8 +92,9 @@ func _on_body_entered(body):
 		# Penetration model: effective damage scales with remaining kinetic energy (KE ∝ v²)
 		var effective_damage := damage
 		if initial_speed > 0.0:
-			var speed_ratio := velocity.length() / initial_speed
-			effective_damage = max(1, int(float(damage) * pow(speed_ratio, 2)))
+			var speed_ratio := clamp(velocity.length() / initial_speed, 0.0, 1.0)
+			var ke_factor := speed_ratio * speed_ratio  # KE ∝ v²
+			effective_damage = clamp(int(float(damage) * ke_factor), 1, damage)
 		body.take_damage(effective_damage)
 		print("Projectile hit! Dealt %d damage (base: %d)" % [effective_damage, damage])
 	_explode()
@@ -98,6 +105,9 @@ func _on_life_timer_timeout():
 
 
 func _explode():
+	if exploded:
+		return
+	exploded = true
 	# Create small explosion effect on impact/timeout
 	var explosion = EXPLOSION_SCENE.instantiate()
 	get_parent().add_child(explosion)
