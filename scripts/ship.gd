@@ -22,6 +22,11 @@ var can_fire_main_guns: bool = true
 var can_fire_secondary_guns: bool = true
 var ship_class_name: String = "Cruiser"
 
+@onready var main_gun_timer: Timer = $MainGunTimer
+@onready var secondary_gun_timer: Timer = $SecondaryGunTimer
+@onready var turret_front: Node2D = $TurretFront
+@onready var turret_rear: Node2D = $TurretRear
+
 # Gun targeting
 var target_position: Vector2 = Vector2.ZERO
 var has_target: bool = false
@@ -49,6 +54,11 @@ func get_can_fire_main_guns() -> bool:
 	return can_fire_main_guns
 
 func _ready():
+	assert(main_gun_timer != null, "MainGunTimer node is missing from ship scene")
+	assert(secondary_gun_timer != null, "SecondaryGunTimer node is missing from ship scene")
+	assert(turret_front != null, "TurretFront node is missing from ship scene")
+	assert(turret_rear != null, "TurretRear node is missing from ship scene")
+
 	# Apply ship class stats
 	_apply_ship_class_stats()
 	health = max_health
@@ -129,7 +139,7 @@ func fire_main_guns():
 	
 	print("Main guns fired!")
 	can_fire_main_guns = false
-	$MainGunTimer.start()
+	main_gun_timer.start()
 	
 	# Create muzzle flash effects
 	_create_muzzle_flash(Vector2(0, -30))
@@ -151,8 +161,8 @@ func _update_turret_aim(delta: float):
 		var step = TURRET_ROTATION_SPEED * delta
 		current_turret_local_rotation += clamp(diff, -step, step)
 	# Always apply current rotation to both turret nodes
-	$TurretFront.rotation = current_turret_local_rotation
-	$TurretRear.rotation = current_turret_local_rotation
+	turret_front.rotation = current_turret_local_rotation
+	turret_rear.rotation = current_turret_local_rotation
 
 func _aim_angle_to_target() -> float:
 	# Returns the fire angle (radians) so Vector2(0,-1).rotated(angle) points at target_position.
@@ -165,7 +175,7 @@ func fire_secondary_guns():
 	
 	print("Secondary guns fired!")
 	can_fire_secondary_guns = false
-	$SecondaryGunTimer.start()
+	secondary_gun_timer.start()
 	
 	# Create muzzle flash effects
 	_create_muzzle_flash(Vector2(-15, -10))
