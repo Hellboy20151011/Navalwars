@@ -26,8 +26,10 @@ var ship_class_name: String = "Cruiser"
 var target_position: Vector2 = Vector2.ZERO
 var has_target: bool = false
 var aim_line_node: Node2D = null
+var current_turret_local_rotation: float = 0.0
 
 const AIM_LINE_LENGTH: float = 800.0
+const TURRET_ROTATION_SPEED: float = 2.0  # radians per second
 
 # Preload projectile scene and ship classes
 var projectile_scene = preload("res://scenes/projectile.tscn")
@@ -52,16 +54,13 @@ func _ready():
 	health = max_health
 	print("%s initialized with %d health" % [ship_class_name, health])
 	
-	# Create dashed aim direction indicator
+	# Create dashed aim direction indicator (always visible)
 	aim_line_node = Node2D.new()
 	aim_line_node.z_index = 5
 	add_child(aim_line_node)
 	aim_line_node.draw.connect(func():
-		if not has_target:
-			return
-		var local_target = to_local(target_position)
-		var dir = local_target.normalized()
-		aim_line_node.draw_dashed_line(Vector2.ZERO, dir * AIM_LINE_LENGTH, Color(1.0, 1.0, 0.0, 0.8), 2.0, 20.0)
+		var turret_dir = Vector2(0, -1).rotated(current_turret_local_rotation)
+		aim_line_node.draw_dashed_line(Vector2.ZERO, turret_dir * AIM_LINE_LENGTH, Color(1.0, 1.0, 0.0, 0.8), 2.0, 20.0)
 	)
 
 func _apply_ship_class_stats():
@@ -86,9 +85,6 @@ func _input(event):
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		target_position = get_global_mouse_position()
 		has_target = true
-		_update_turret_aim()
-		if aim_line_node:
-			aim_line_node.queue_redraw()
 
 func _physics_process(delta):
 	# Handle movement input
@@ -115,11 +111,10 @@ func _physics_process(delta):
 	# Move the ship
 	move_and_slide()
 	
-	# Keep turrets aimed at target as ship moves/rotates
-	if has_target:
-		_update_turret_aim()
-		if aim_line_node:
-			aim_line_node.queue_redraw()
+	# Update turret aim every frame (smooth rotation toward target when set)
+	_update_turret_aim(delta)
+	if aim_line_node:
+		aim_line_node.queue_redraw()
 	
 	# Handle weapons
 	if Input.is_action_just_pressed("fire_main_guns"):
@@ -140,24 +135,24 @@ func fire_main_guns():
 	_create_muzzle_flash(Vector2(0, -30))
 	_create_muzzle_flash(Vector2(0, 30))
 	
-	# Determine fire direction: toward target if set, otherwise ship forward
-	var fire_angle: float
-	if has_target:
-		fire_angle = _aim_angle_to_target()
-	else:
-		fire_angle = rotation
+	# Fire in the direction the turrets are currently pointing
+	var fire_angle = rotation + current_turret_local_rotation
 	
 	# Create main gun projectiles (front and rear turrets)
 	_spawn_projectile(Vector2(0, -30), fire_angle, main_gun_damage, 600.0)
 	_spawn_projectile(Vector2(0, 30), fire_angle, main_gun_damage, 600.0)
 
-func _update_turret_aim():
-	if not has_target:
-		return
-	# Rotate turrets so their local -Y axis (forward) points toward the target
-	var turret_rotation = _aim_angle_to_target() - rotation
-	$TurretFront.rotation = turret_rotation
-	$TurretRear.rotation = turret_rotation
+func _update_turret_aim(delta: float):
+	# Smoothly rotate turrets toward the target when one is set
+	if has_target:
+		var target_local_rot = _aim_angle_to_target() - rotation
+		# Shortest-path angular difference, clamped to [-PI, PI]
+		var diff = fposmod(target_local_rot - current_turret_local_rotation + PI, TAU) - PI
+		var step = TURRET_ROTATION_SPEED * delta
+		current_turret_local_rotation += clamp(diff, -step, step)
+	# Always apply current rotation to both turret nodes
+	$TurretFront.rotation = current_turret_local_rotation
+	$TurretRear.rotation = current_turret_local_rotation
 
 func _aim_angle_to_target() -> float:
 	# Returns the fire angle (radians) so Vector2(0,-1).rotated(angle) points at target_position.
