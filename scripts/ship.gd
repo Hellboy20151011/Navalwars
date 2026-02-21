@@ -183,7 +183,7 @@ func _on_secondary_gun_timer_timeout():
 
 func take_damage(amount: int):
 	health -= amount
-	print("Ship took %d damage. Health: %d/%d" % [amount, health, max_health])
+	print("Ship took %d damage.\nHealth: %d/%d" % [amount, health, max_health])
 	
 	if health <= 0:
 		_destroy_ship()
@@ -203,7 +203,7 @@ func _destroy_ship():
 
 func repair(amount: int):
 	health = min(health + amount, max_health)
-	print("Ship repaired. Health: %d/%d" % [health, max_health])
+	print("Ship repaired.\nHealth: %d/%d" % [health, max_health])
 
 func _create_muzzle_flash(offset: Vector2):
 	# Create visual muzzle flash effect

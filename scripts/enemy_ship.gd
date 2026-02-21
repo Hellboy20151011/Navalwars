@@ -205,7 +205,7 @@ func _on_detection_area_body_exited(body):
 
 func take_damage(amount: int):
 	health -= amount
-	print("Enemy ship took %d damage. Health: %d/%d" % [amount, health, max_health])
+	print("Enemy ship took %d damage.\nHealth: %d/%d" % [amount, health, max_health])
 	
 	if health <= 0:
 		_destroy_ship()
