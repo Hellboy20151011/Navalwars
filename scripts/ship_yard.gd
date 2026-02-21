@@ -39,22 +39,22 @@ func _ready():
 
 func _connect_buttons():
 	# Ship class selection
-	$UI/ConfigPanel/ShipClassSection/PrevClassButton.connect("pressed", _on_prev_ship_class)
-	$UI/ConfigPanel/ShipClassSection/NextClassButton.connect("pressed", _on_next_ship_class)
+	$UI/ConfigPanel/ShipClassSection/ButtonContainer/PrevClassButton.connect("pressed", _on_prev_ship_class)
+	$UI/ConfigPanel/ShipClassSection/ButtonContainer/NextClassButton.connect("pressed", _on_next_ship_class)
 	
 	# Weapons configuration
-	$UI/ConfigPanel/WeaponsSection/PrevMainGunButton.connect("pressed", _on_prev_main_gun)
-	$UI/ConfigPanel/WeaponsSection/NextMainGunButton.connect("pressed", _on_next_main_gun)
-	$UI/ConfigPanel/WeaponsSection/PrevSecGunButton.connect("pressed", _on_prev_sec_gun)
-	$UI/ConfigPanel/WeaponsSection/NextSecGunButton.connect("pressed", _on_next_sec_gun)
+	$UI/ConfigPanel/WeaponsSection/MainGunButtons/PrevMainGunButton.connect("pressed", _on_prev_main_gun)
+	$UI/ConfigPanel/WeaponsSection/MainGunButtons/NextMainGunButton.connect("pressed", _on_next_main_gun)
+	$UI/ConfigPanel/WeaponsSection/SecGunButtons/PrevSecGunButton.connect("pressed", _on_prev_sec_gun)
+	$UI/ConfigPanel/WeaponsSection/SecGunButtons/NextSecGunButton.connect("pressed", _on_next_sec_gun)
 	
 	# Propulsion configuration
-	$UI/ConfigPanel/PropulsionSection/PrevEngineButton.connect("pressed", _on_prev_engine)
-	$UI/ConfigPanel/PropulsionSection/NextEngineButton.connect("pressed", _on_next_engine)
+	$UI/ConfigPanel/PropulsionSection/EngineButtons/PrevEngineButton.connect("pressed", _on_prev_engine)
+	$UI/ConfigPanel/PropulsionSection/EngineButtons/NextEngineButton.connect("pressed", _on_next_engine)
 	
 	# Fire control configuration
-	$UI/ConfigPanel/FireControlSection/PrevFCSButton.connect("pressed", _on_prev_fcs)
-	$UI/ConfigPanel/FireControlSection/NextFCSButton.connect("pressed", _on_next_fcs)
+	$UI/ConfigPanel/FireControlSection/FCSButtons/PrevFCSButton.connect("pressed", _on_prev_fcs)
+	$UI/ConfigPanel/FireControlSection/FCSButtons/NextFCSButton.connect("pressed", _on_next_fcs)
 	
 	# Crew assignment
 	$UI/ConfigPanel/CrewSection/AssignCrewButton.connect("pressed", _on_assign_crew)
