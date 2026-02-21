@@ -10,7 +10,7 @@
 script = ExtResource("1_h5yqf")
 
 [node name="Camera2D" type="Camera2D" parent="."]
-zoom = Vector2(0.5, 0.5)
+zoom = Vector2(0.5, 0.35)
 
 [node name="Ocean" parent="." instance=ExtResource("2_ocean")]
 
@@ -92,5 +92,6 @@ offset_left = 10.0
 offset_top = 10.0
 offset_right = 210.0
 offset_bottom = 60.0
+focus_mode = 0
 theme_override_font_sizes/font_size = 18
 text = "RETURN TO MENU"
