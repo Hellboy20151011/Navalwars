@@ -36,9 +36,8 @@ var current_turret_local_rotation: float = 0.0
 const AIM_LINE_LENGTH: float = 800.0
 const TURRET_ROTATION_SPEED: float = 2.0  # radians per second
 
-# Preload projectile scene and ship classes
+# Preload projectile scene
 var projectile_scene = preload("res://scenes/projectile.tscn")
-var ship_classes = preload("res://scripts/ship_classes.gd")
 
 # Public getter methods for game manager
 func get_health() -> int:
@@ -75,7 +74,7 @@ func _ready():
 
 func _apply_ship_class_stats():
 	# Get ship class data and apply to this ship
-	var class_data = ship_classes.get_ship_class_data(ship_class)
+	var class_data = ShipClasses.get_ship_class_data(ship_class)
 	
 	ship_class_name = class_data.ship_name
 	max_health = class_data.max_health
@@ -86,7 +85,7 @@ func _apply_ship_class_stats():
 	secondary_gun_damage = class_data.secondary_gun_damage
 	
 	# Apply visual scale
-	var ship_scale = ship_classes.get_ship_scale(ship_class)
+	var ship_scale = ShipClasses.get_ship_scale(ship_class)
 	scale = ship_scale
 	
 	print("Ship class applied: %s" % ship_class_name)
