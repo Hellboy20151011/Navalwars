@@ -11,6 +11,11 @@ const SPLASH_CENTER_SCALE: float = 0.4
 const SPLASH_COLOR_OUTER: Color = Color(0.4, 0.7, 1.0)
 const SPLASH_COLOR_INNER: Color = Color(0.8, 0.95, 1.0)
 const SPLASH_COLOR_CENTER: Color = Color(0.6, 0.85, 1.0)
+const SPARK_INNER_RADIUS: float = 5.0
+const SPARK_OUTER_RADIUS: float = 8.0
+const SPARK_INNER_COLOR: Color = Color(1.0, 0.85, 0.2, 0.9)
+const SPARK_OUTER_COLOR: Color = Color(1.0, 0.6, 0.1, 0.7)
+const SPARK_FADE_DURATION: float = 0.3
 
 @export var damage: int = 25
 @export var speed: float = 500.0
@@ -109,6 +114,8 @@ func _on_body_entered(body):
 			effective_damage = clamp(int(float(damage) * ke_factor), 1, damage)
 		body.take_damage(effective_damage)
 		print("Projectile hit! Dealt %d damage (base: %d)" % [effective_damage, damage])
+		if piercing:
+			_piercing_spark()  # Visual feedback: piercing round passed through
 
 	if not piercing:
 		_explode()
@@ -116,6 +123,25 @@ func _on_body_entered(body):
 
 func _on_life_timer_timeout():
 	_splash()  # Timed out without hitting a target → water impact
+
+
+func _piercing_spark():
+	# Brief spark at the penetration point so the player knows the round passed through
+	var p := get_parent()
+	if p == null:
+		return
+	var spark := Node2D.new()
+	p.add_child(spark)
+	spark.global_position = global_position
+	spark.z_index = 6
+	spark.draw.connect(func():
+		spark.draw_circle(Vector2.ZERO, SPARK_INNER_RADIUS, SPARK_INNER_COLOR)
+		spark.draw_arc(Vector2.ZERO, SPARK_OUTER_RADIUS, 0.0, TAU, 16, SPARK_OUTER_COLOR, 1.5)
+	)
+	spark.queue_redraw()
+	var tween := spark.create_tween()
+	tween.tween_property(spark, "modulate", Color(1, 1, 1, 0), SPARK_FADE_DURATION)
+	tween.tween_callback(spark.queue_free)
 
 
 func _splash():
@@ -137,9 +163,15 @@ func _splash():
 		var alpha := 1.0 - t
 		var r1 := t * SPLASH_OUTER_RADIUS
 		var r2 := t * SPLASH_INNER_RADIUS
-		splash.draw_arc(Vector2.ZERO, r1, 0.0, TAU, 32, Color(SPLASH_COLOR_OUTER, alpha * 0.9), 2.5)
-		splash.draw_arc(Vector2.ZERO, r2, 0.0, TAU, 24, Color(SPLASH_COLOR_INNER, alpha * 0.6), 1.5)
-		splash.draw_circle(Vector2.ZERO, r2 * SPLASH_CENTER_SCALE, Color(SPLASH_COLOR_CENTER, alpha * 0.4))
+		var c1 := SPLASH_COLOR_OUTER
+		c1.a = alpha * 0.9
+		var c2 := SPLASH_COLOR_INNER
+		c2.a = alpha * 0.6
+		var c3 := SPLASH_COLOR_CENTER
+		c3.a = alpha * 0.4
+		splash.draw_arc(Vector2.ZERO, r1, 0.0, TAU, 32, c1, 2.5)
+		splash.draw_arc(Vector2.ZERO, r2, 0.0, TAU, 24, c2, 1.5)
+		splash.draw_circle(Vector2.ZERO, r2 * SPLASH_CENTER_SCALE, c3)
 	)
 	var splash_tween := splash.create_tween()
 	splash_tween.tween_method(
