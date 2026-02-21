@@ -44,7 +44,7 @@ func _apply_ship_class_stats():
 	# Get ship class data and apply to this enemy ship
 	var class_data = ship_classes.get_ship_class_data(ship_class)
 	
-	ship_class_name = class_data.class_name
+	ship_class_name = class_data.ship_name
 	max_health = class_data.max_health
 	max_speed = class_data.max_speed
 	acceleration = class_data.acceleration
