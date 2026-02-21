@@ -22,6 +22,13 @@ var can_fire_main_guns: bool = true
 var can_fire_secondary_guns: bool = true
 var ship_class_name: String = "Cruiser"
 
+# Gun targeting
+var target_position: Vector2 = Vector2.ZERO
+var has_target: bool = false
+var aim_line_node: Node2D = null
+
+const AIM_LINE_LENGTH: float = 800.0
+
 # Preload projectile scene and ship classes
 var projectile_scene = preload("res://scenes/projectile.tscn")
 var ship_classes = preload("res://scripts/ship_classes.gd")
@@ -44,6 +51,18 @@ func _ready():
 	_apply_ship_class_stats()
 	health = max_health
 	print("%s initialized with %d health" % [ship_class_name, health])
+	
+	# Create dashed aim direction indicator
+	aim_line_node = Node2D.new()
+	aim_line_node.z_index = 5
+	add_child(aim_line_node)
+	aim_line_node.draw.connect(func():
+		if not has_target:
+			return
+		var local_target = to_local(target_position)
+		var dir = local_target.normalized()
+		aim_line_node.draw_dashed_line(Vector2.ZERO, dir * AIM_LINE_LENGTH, Color(1.0, 1.0, 0.0, 0.8), 2.0, 20.0)
+	)
 
 func _apply_ship_class_stats():
 	# Get ship class data and apply to this ship
@@ -62,6 +81,14 @@ func _apply_ship_class_stats():
 	scale = ship_scale
 	
 	print("Ship class applied: %s" % ship_class_name)
+
+func _input(event):
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		target_position = get_global_mouse_position()
+		has_target = true
+		_update_turret_aim()
+		if aim_line_node:
+			aim_line_node.queue_redraw()
 
 func _physics_process(delta):
 	# Handle movement input
@@ -88,6 +115,12 @@ func _physics_process(delta):
 	# Move the ship
 	move_and_slide()
 	
+	# Keep turrets aimed at target as ship moves/rotates
+	if has_target:
+		_update_turret_aim()
+		if aim_line_node:
+			aim_line_node.queue_redraw()
+	
 	# Handle weapons
 	if Input.is_action_just_pressed("fire_main_guns"):
 		fire_main_guns()
@@ -107,9 +140,29 @@ func fire_main_guns():
 	_create_muzzle_flash(Vector2(0, -30))
 	_create_muzzle_flash(Vector2(0, 30))
 	
+	# Determine fire direction: toward target if set, otherwise ship forward
+	var fire_angle: float
+	if has_target:
+		fire_angle = _aim_angle_to_target()
+	else:
+		fire_angle = rotation
+	
 	# Create main gun projectiles (front and rear turrets)
-	_spawn_projectile(Vector2(0, -30), main_gun_damage, 600.0)
-	_spawn_projectile(Vector2(0, 30), main_gun_damage, 600.0)
+	_spawn_projectile(Vector2(0, -30), fire_angle, main_gun_damage, 600.0)
+	_spawn_projectile(Vector2(0, 30), fire_angle, main_gun_damage, 600.0)
+
+func _update_turret_aim():
+	if not has_target:
+		return
+	# Rotate turrets so their local -Y axis (forward) points toward the target
+	var turret_rotation = _aim_angle_to_target() - rotation
+	$TurretFront.rotation = turret_rotation
+	$TurretRear.rotation = turret_rotation
+
+func _aim_angle_to_target() -> float:
+	# Returns the fire angle (radians) so Vector2(0,-1).rotated(angle) points at target_position.
+	# Adds PI/2 to convert from Godot's east=0 convention to the projectile's north=0 convention.
+	return (target_position - global_position).angle() + PI / 2.0
 
 func fire_secondary_guns():
 	if not can_fire_secondary_guns:
@@ -124,8 +177,8 @@ func fire_secondary_guns():
 	_create_muzzle_flash(Vector2(15, -10))
 	
 	# Create secondary gun projectiles (faster, less damage)
-	_spawn_projectile(Vector2(-15, -10), secondary_gun_damage, 700.0)
-	_spawn_projectile(Vector2(15, -10), secondary_gun_damage, 700.0)
+	_spawn_projectile(Vector2(-15, -10), rotation, secondary_gun_damage, 700.0)
+	_spawn_projectile(Vector2(15, -10), rotation, secondary_gun_damage, 700.0)
 
 func _on_main_gun_timer_timeout():
 	can_fire_main_guns = true
@@ -180,10 +233,10 @@ func _create_muzzle_flash(offset: Vector2):
 	await get_tree().create_timer(0.1).timeout
 	flash.queue_free()
 
-func _spawn_projectile(offset: Vector2, damage: int, speed: float):
+func _spawn_projectile(offset: Vector2, fire_angle: float, damage: int, speed: float):
 	var projectile = projectile_scene.instantiate()
 	get_parent().add_child(projectile)
 	
 	# Calculate spawn position (turret position)
 	var spawn_pos = global_position + offset.rotated(rotation)
-	projectile.initialize(spawn_pos, rotation, speed, damage)
+	projectile.initialize(spawn_pos, fire_angle, speed, damage)
