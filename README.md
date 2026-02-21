@@ -39,7 +39,8 @@ Naval Wars is a 2D naval combat game that draws inspiration from the classic Nav
 - **A**: Turn Left
 - **D**: Turn Right
 - **Space**: Fire Main Guns
-- **Left Mouse Button**: Fire Secondary Guns
+- **Left Mouse Button**: Set Aim Target
+- **Right Mouse Button**: Fire Secondary Guns
 
 ## Getting Started
 
