@@ -130,7 +130,7 @@ static func get_ship_scale(ship_class: ShipClass) -> Vector2:
 static func get_ship_description(ship_class: ShipClass) -> String:
 	match ship_class:
 		ShipClass.DESTROYER:
-			return "Fast and maneuverable. Excellent for hit-and-run tactics."
+			return "Fast and maneuverable.\nExcellent for hit-and-run tactics."
 		ShipClass.CRUISER:
 			return "Balanced combat vessel. Good all-around performance."
 		ShipClass.BATTLESHIP:
