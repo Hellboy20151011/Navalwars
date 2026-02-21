@@ -1,6 +1,5 @@
 # Ship Class Definitions
 # Defines stats and characteristics for different NavyField ship classes
-extends Node
 
 enum ShipClass {
 	DESTROYER,
@@ -49,7 +48,8 @@ class ShipClassData:
 		ship_color = p_ship_color
 
 # Ship class definitions based on NavyField characteristics
-static func get_ship_class_data(ship_class: ShipClass) -> ShipClassData:
+# Returns a ShipClassData instance for the given ship_class
+static func get_ship_class_data(ship_class: ShipClass):
 	match ship_class:
 		ShipClass.DESTROYER:
 			return ShipClassData.new(
