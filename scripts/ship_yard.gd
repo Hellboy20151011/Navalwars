@@ -18,9 +18,10 @@ var gun_types = ["Standard Guns", "Heavy Guns", "Rapid Fire Guns"]
 var engine_types = ["Standard Engine", "High Speed Engine", "Heavy Duty Engine"]
 var fire_control_types = ["Basic FCS", "Advanced FCS", "Tactical FCS"]
 
+
 func _ready():
 	print("Ship Yard initialized")
-	
+
 	# Load saved configuration from GameState if available
 	# Note: GameState.get_ship_config() already returns a deep copy
 	var saved_config = GameState.get_ship_config()
@@ -29,38 +30,56 @@ func _ready():
 		print("Loaded ship config from GameState: %s" % player_ship_config)
 	else:
 		print("Using default ship config")
-	
+
 	# Connect UI buttons
 	_connect_buttons()
-	
+
 	# Initialize UI
 	_update_ship_display()
 	_update_configuration_panel()
 
+
 func _connect_buttons():
 	# Ship class selection
-	$UI/ConfigPanel/ShipClassSection/ButtonContainer/PrevClassButton.connect("pressed", _on_prev_ship_class)
-	$UI/ConfigPanel/ShipClassSection/ButtonContainer/NextClassButton.connect("pressed", _on_next_ship_class)
-	
+	$UI/ConfigPanel/ShipClassSection/ButtonContainer/PrevClassButton.connect(
+		"pressed", _on_prev_ship_class
+	)
+	$UI/ConfigPanel/ShipClassSection/ButtonContainer/NextClassButton.connect(
+		"pressed", _on_next_ship_class
+	)
+
 	# Weapons configuration
-	$UI/ConfigPanel/WeaponsSection/MainGunButtons/PrevMainGunButton.connect("pressed", _on_prev_main_gun)
-	$UI/ConfigPanel/WeaponsSection/MainGunButtons/NextMainGunButton.connect("pressed", _on_next_main_gun)
-	$UI/ConfigPanel/WeaponsSection/SecGunButtons/PrevSecGunButton.connect("pressed", _on_prev_sec_gun)
-	$UI/ConfigPanel/WeaponsSection/SecGunButtons/NextSecGunButton.connect("pressed", _on_next_sec_gun)
-	
+	$UI/ConfigPanel/WeaponsSection/MainGunButtons/PrevMainGunButton.connect(
+		"pressed", _on_prev_main_gun
+	)
+	$UI/ConfigPanel/WeaponsSection/MainGunButtons/NextMainGunButton.connect(
+		"pressed", _on_next_main_gun
+	)
+	$UI/ConfigPanel/WeaponsSection/SecGunButtons/PrevSecGunButton.connect(
+		"pressed", _on_prev_sec_gun
+	)
+	$UI/ConfigPanel/WeaponsSection/SecGunButtons/NextSecGunButton.connect(
+		"pressed", _on_next_sec_gun
+	)
+
 	# Propulsion configuration
-	$UI/ConfigPanel/PropulsionSection/EngineButtons/PrevEngineButton.connect("pressed", _on_prev_engine)
-	$UI/ConfigPanel/PropulsionSection/EngineButtons/NextEngineButton.connect("pressed", _on_next_engine)
-	
+	$UI/ConfigPanel/PropulsionSection/EngineButtons/PrevEngineButton.connect(
+		"pressed", _on_prev_engine
+	)
+	$UI/ConfigPanel/PropulsionSection/EngineButtons/NextEngineButton.connect(
+		"pressed", _on_next_engine
+	)
+
 	# Fire control configuration
 	$UI/ConfigPanel/FireControlSection/FCSButtons/PrevFCSButton.connect("pressed", _on_prev_fcs)
 	$UI/ConfigPanel/FireControlSection/FCSButtons/NextFCSButton.connect("pressed", _on_next_fcs)
-	
+
 	# Crew assignment
 	$UI/ConfigPanel/CrewSection/AssignCrewButton.connect("pressed", _on_assign_crew)
-	
+
 	# Battle menu button
 	$UI/BottomPanel/BattleButton.connect("pressed", _on_battle_button_pressed)
+
 
 # Ship class navigation
 func _on_prev_ship_class():
@@ -69,10 +88,14 @@ func _on_prev_ship_class():
 	_update_ship_display()
 	_update_configuration_panel()
 
+
 func _on_next_ship_class():
-	player_ship_config["ship_class"] = (player_ship_config["ship_class"] + 1) % ship_class_names.size()
+	player_ship_config["ship_class"] = (
+		(player_ship_config["ship_class"] + 1) % ship_class_names.size()
+	)
 	_update_ship_display()
 	_update_configuration_panel()
+
 
 # Weapon configuration
 func _on_prev_main_gun():
@@ -80,18 +103,28 @@ func _on_prev_main_gun():
 	player_ship_config["main_gun_type"] = (player_ship_config["main_gun_type"] - 1 + size) % size
 	_update_configuration_panel()
 
+
 func _on_next_main_gun():
-	player_ship_config["main_gun_type"] = (player_ship_config["main_gun_type"] + 1) % gun_types.size()
+	player_ship_config["main_gun_type"] = (
+		(player_ship_config["main_gun_type"] + 1) % gun_types.size()
+	)
 	_update_configuration_panel()
+
 
 func _on_prev_sec_gun():
 	var size = gun_types.size()
-	player_ship_config["secondary_gun_type"] = (player_ship_config["secondary_gun_type"] - 1 + size) % size
+	player_ship_config["secondary_gun_type"] = (
+		(player_ship_config["secondary_gun_type"] - 1 + size) % size
+	)
 	_update_configuration_panel()
 
+
 func _on_next_sec_gun():
-	player_ship_config["secondary_gun_type"] = (player_ship_config["secondary_gun_type"] + 1) % gun_types.size()
+	player_ship_config["secondary_gun_type"] = (
+		(player_ship_config["secondary_gun_type"] + 1) % gun_types.size()
+	)
 	_update_configuration_panel()
+
 
 # Engine configuration
 func _on_prev_engine():
@@ -99,30 +132,41 @@ func _on_prev_engine():
 	player_ship_config["engine_type"] = (player_ship_config["engine_type"] - 1 + size) % size
 	_update_configuration_panel()
 
+
 func _on_next_engine():
-	player_ship_config["engine_type"] = (player_ship_config["engine_type"] + 1) % engine_types.size()
+	player_ship_config["engine_type"] = (
+		(player_ship_config["engine_type"] + 1) % engine_types.size()
+	)
 	_update_configuration_panel()
+
 
 # Fire control configuration
 func _on_prev_fcs():
 	var size = fire_control_types.size()
-	player_ship_config["fire_control_type"] = (player_ship_config["fire_control_type"] - 1 + size) % size
+	player_ship_config["fire_control_type"] = (
+		(player_ship_config["fire_control_type"] - 1 + size) % size
+	)
 	_update_configuration_panel()
 
+
 func _on_next_fcs():
-	player_ship_config["fire_control_type"] = (player_ship_config["fire_control_type"] + 1) % fire_control_types.size()
+	player_ship_config["fire_control_type"] = (
+		(player_ship_config["fire_control_type"] + 1) % fire_control_types.size()
+	)
 	_update_configuration_panel()
+
 
 # Crew assignment
 func _on_assign_crew():
 	player_ship_config["crew_assigned"] = !player_ship_config["crew_assigned"]
 	_update_configuration_panel()
 
+
 # Update ship visual display
 func _update_ship_display():
 	var ship_name = ship_class_names[player_ship_config["ship_class"]]
 	$UI/ShipDisplay/ShipNameLabel.text = ship_name
-	
+
 	# Update ship visual (simple color-coded representation)
 	var ship_visual = $UI/ShipDisplay/ShipVisual
 	match player_ship_config["ship_class"]:
@@ -135,25 +179,41 @@ func _update_ship_display():
 		3:  # Carrier - support
 			ship_visual.color = Color(0.8, 0.7, 0.3)
 
+
 # Update configuration panel display
 func _update_configuration_panel():
 	# Ship class
-	$UI/ConfigPanel/ShipClassSection/ClassLabel.text = "Ship Class: %s" % ship_class_names[player_ship_config["ship_class"]]
-	
+	$UI/ConfigPanel/ShipClassSection/ClassLabel.text = (
+		"Ship Class: %s" % ship_class_names[player_ship_config["ship_class"]]
+	)
+
 	# Weapons
-	$UI/ConfigPanel/WeaponsSection/MainGunLabel.text = "Main Guns: %s" % gun_types[player_ship_config["main_gun_type"]]
-	$UI/ConfigPanel/WeaponsSection/SecGunLabel.text = "Secondary Guns: %s" % gun_types[player_ship_config["secondary_gun_type"]]
-	
+	$UI/ConfigPanel/WeaponsSection/MainGunLabel.text = (
+		"Main Guns: %s" % gun_types[player_ship_config["main_gun_type"]]
+	)
+	$UI/ConfigPanel/WeaponsSection/SecGunLabel.text = (
+		"Secondary Guns: %s" % gun_types[player_ship_config["secondary_gun_type"]]
+	)
+
 	# Propulsion
-	$UI/ConfigPanel/PropulsionSection/EngineLabel.text = "Engine: %s" % engine_types[player_ship_config["engine_type"]]
-	
+	$UI/ConfigPanel/PropulsionSection/EngineLabel.text = (
+		"Engine: %s" % engine_types[player_ship_config["engine_type"]]
+	)
+
 	# Fire Control
-	$UI/ConfigPanel/FireControlSection/FCSLabel.text = "Fire Control: %s" % fire_control_types[player_ship_config["fire_control_type"]]
-	
+	$UI/ConfigPanel/FireControlSection/FCSLabel.text = (
+		"Fire Control: %s" % fire_control_types[player_ship_config["fire_control_type"]]
+	)
+
 	# Crew
-	var crew_text = "Crew: " + ("ASSIGNED" if player_ship_config["crew_assigned"] else "NOT ASSIGNED")
+	var crew_text = (
+		"Crew: " + ("ASSIGNED" if player_ship_config["crew_assigned"] else "NOT ASSIGNED")
+	)
 	$UI/ConfigPanel/CrewSection/CrewStatusLabel.text = crew_text
-	$UI/ConfigPanel/CrewSection/AssignCrewButton.text = "Unassign Crew" if player_ship_config["crew_assigned"] else "Assign Crew"
+	$UI/ConfigPanel/CrewSection/AssignCrewButton.text = (
+		"Unassign Crew" if player_ship_config["crew_assigned"] else "Assign Crew"
+	)
+
 
 # Navigate to battle menu
 func _on_battle_button_pressed():

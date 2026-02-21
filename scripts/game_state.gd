@@ -14,19 +14,23 @@ var ship_config = {
 	"crew_assigned": false
 }
 
+
 # Save ship configuration
 func set_ship_config(config: Dictionary):
 	ship_config = config.duplicate(true)  # Deep copy to prevent mutations
 	print("GameState: Ship config saved - %s" % ship_config)
 
+
 # Get ship configuration
 func get_ship_config() -> Dictionary:
 	return ship_config.duplicate(true)  # Deep copy to prevent external mutations
+
 
 # Set player username
 func set_player_username(username: String):
 	player_username = username
 	print("GameState: Player username set to %s" % username)
+
 
 # Get player username
 func get_player_username() -> String:
