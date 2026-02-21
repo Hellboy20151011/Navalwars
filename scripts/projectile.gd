@@ -9,6 +9,7 @@ const EXPLOSION_SCENE = preload("res://scenes/explosion.tscn")
 @export var speed: float = 500.0
 @export var piercing: bool = false
 @export var drag_coefficient: float = 0.0  # Air resistance: velocity decay per second (1/s)
+@export var dispersion_deg: float = 0.25  # Angular spread in degrees (0 = perfectly accurate)
 
 var velocity: Vector2 = Vector2.ZERO
 var travel_distance: float = 0.0
@@ -42,13 +43,14 @@ func initialize(
 	drag: float = 0.0
 ):
 	position = start_position
-	rotation = direction
 	speed = projectile_speed
 	damage = projectile_damage
-	velocity = Vector2(0, -speed).rotated(direction)
 	collision_mask = hit_mask
 	drag_coefficient = drag
 	initial_speed = projectile_speed
+	var dispersion_rad := deg_to_rad(randf_range(-dispersion_deg, dispersion_deg))
+	rotation = direction + dispersion_rad
+	velocity = Vector2(0, -speed).rotated(rotation)
 
 
 func _physics_process(delta):
@@ -88,6 +90,9 @@ func _update_trail():
 
 
 func _on_body_entered(body):
+	if exploded:
+		return
+
 	if body.has_method("take_damage"):
 		# Penetration model: effective damage scales with remaining kinetic energy (KE ∝ v²)
 		var effective_damage := damage
@@ -97,7 +102,9 @@ func _on_body_entered(body):
 			effective_damage = clamp(int(float(damage) * ke_factor), 1, damage)
 		body.take_damage(effective_damage)
 		print("Projectile hit! Dealt %d damage (base: %d)" % [effective_damage, damage])
-	_explode()
+
+	if not piercing:
+		_explode()
 
 
 func _on_life_timer_timeout():
@@ -108,16 +115,20 @@ func _explode():
 	if exploded:
 		return
 	exploded = true
+	var p := get_parent()
+	if p == null:
+		queue_free()
+		return
 	# Create small explosion effect on impact/timeout
 	var explosion = EXPLOSION_SCENE.instantiate()
-	get_parent().add_child(explosion)
+	p.add_child(explosion)
 	explosion.global_position = global_position
 	explosion.explosion_radius = 25.0
 	explosion.explosion_duration = 0.5
 
 	# Create impact marker: small green circle that fades out
 	var marker = Node2D.new()
-	get_parent().add_child(marker)
+	p.add_child(marker)
 	marker.global_position = global_position
 	marker.z_index = 6
 	marker.draw.connect(
