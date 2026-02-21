@@ -34,14 +34,13 @@ func _draw():
 			var enemy_pos = _world_to_minimap(enemy.global_position)
 			draw_circle(enemy_pos, 4, Color(1.0, 0.2, 0.2, 1.0))  # Red for enemies
 
-func _process(_delta):
-	queue_redraw()  # Redraw every frame to update positions
-
 func set_player_ship(ship: Node2D):
 	player_ship = ship
+	queue_redraw()
 
 func set_enemy_ships(ships: Array):
 	enemy_ships = ships
+	queue_redraw()
 
 func _world_to_minimap(world_pos: Vector2) -> Vector2:
 	# Convert world coordinates to minimap coordinates
