@@ -177,6 +177,12 @@ This project is inspired by the gameplay mechanics of Navyfield 1 (2006), includ
 
 This project is a fan-made derivative work inspired by Navyfield 1 gameplay concepts.
 
+## Documentation
+
+Additional documentation is available in the following files:
+- **[Player Statistics Recommendations (English)](PLAYER_STATISTICS_RECOMMENDATIONS.md)** - Comprehensive guide on implementing player statistics storage, currency systems, ship ownership, and crew management
+- **[Spieler Statistiken Empfehlungen (Deutsch)](SPIELER_STATISTIKEN_EMPFEHLUNGEN.md)** - Deutsche Version der Empfehlungen für Spielerstatistiken
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit pull requests or open issues for bugs and feature requests.
