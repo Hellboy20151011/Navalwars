@@ -9,17 +9,23 @@ extends Area2D
 var velocity: Vector2 = Vector2.ZERO
 var travel_distance: float = 0.0
 var max_range: float = 2000.0
-var trail_node: Line2D = null
+
+@onready var trail_node: Line2D = $Trail
+@onready var life_timer: Timer = $LifeTimer
 
 const IMPACT_MARKER_FADE_DURATION: float = 3.0
 
 func _ready():
+	assert(trail_node != null, "Trail node is missing from projectile scene")
+	assert(life_timer != null, "LifeTimer node is missing from projectile scene")
 	# Set collision layers
 	collision_layer = 4  # Projectile layer
 	collision_mask = 3   # Can hit ships (player and enemy)
-	
-	# Cache trail node reference
-	trail_node = $Trail
+	# Ensure signals are connected even if scene wiring was removed
+	if not body_entered.is_connected(_on_body_entered):
+		body_entered.connect(_on_body_entered)
+	if not life_timer.timeout.is_connected(_on_life_timer_timeout):
+		life_timer.timeout.connect(_on_life_timer_timeout)
 
 func initialize(start_position: Vector2, direction: float, projectile_speed: float, projectile_damage: int, hit_mask: int = 3):
 	position = start_position

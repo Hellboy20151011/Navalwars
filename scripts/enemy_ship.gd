@@ -23,6 +23,11 @@ var can_fire_secondary_guns: bool = true
 var ai_state: String = "patrol"  # patrol, engage, evade
 var ship_class_name: String = "Cruiser"
 
+@onready var main_gun_timer: Timer = $MainGunTimer
+@onready var secondary_gun_timer: Timer = $SecondaryGunTimer
+@onready var ai_timer: Timer = $AITimer
+@onready var detection_area: Area2D = $DetectionArea
+
 # Preload projectile scene and ship classes
 var projectile_scene = preload("res://scenes/projectile.tscn")
 var ship_classes = preload("res://scripts/ship_classes.gd")
@@ -34,6 +39,11 @@ var optimal_range: float = 500.0
 const FIRING_ANGLE_TOLERANCE: float = 17.0  # Degrees - represents gun turret rotation limits
 
 func _ready():
+	assert(main_gun_timer != null, "MainGunTimer node is missing from enemy_ship scene")
+	assert(secondary_gun_timer != null, "SecondaryGunTimer node is missing from enemy_ship scene")
+	assert(ai_timer != null, "AITimer node is missing from enemy_ship scene")
+	assert(detection_area != null, "DetectionArea node is missing from enemy_ship scene")
+
 	# Apply ship class stats
 	_apply_ship_class_stats()
 	health = max_health
@@ -149,7 +159,7 @@ func fire_main_guns():
 		return
 	
 	can_fire_main_guns = false
-	$MainGunTimer.start()
+	main_gun_timer.start()
 	
 	# Spawn projectiles
 	_spawn_projectile(Vector2(0, -25), main_gun_damage, 550.0)
@@ -160,7 +170,7 @@ func fire_secondary_guns():
 		return
 	
 	can_fire_secondary_guns = false
-	$SecondaryGunTimer.start()
+	secondary_gun_timer.start()
 	
 	# Spawn projectiles
 	_spawn_projectile(Vector2(-12, -8), secondary_gun_damage, 650.0)
