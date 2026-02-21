@@ -222,9 +222,6 @@ func _create_muzzle_flash(offset: Vector2):
 	flash.position = offset
 	
 	# Draw the flash
-	var flash_drawer = func():
-		flash.queue_redraw()
-	
 	flash.draw.connect(func():
 		var flash_color = Color(1.0, 0.9, 0.5, 0.8)
 		flash.draw_circle(Vector2.ZERO, 10, flash_color)
