@@ -52,7 +52,7 @@ func _update_trail():
 		return
 		
 	# Add point to trail
-	var local_pos = to_local(position - velocity.normalized() * 10)
+	var local_pos = to_local(global_position - velocity.normalized() * 10)
 	if trail_node.get_point_count() < 10:
 		trail_node.add_point(local_pos)
 	else:
