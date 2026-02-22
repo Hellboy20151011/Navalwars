@@ -33,6 +33,7 @@ var exploded := false
 var height: float = 0.0          # Current simulated height above sea surface
 var vertical_velocity: float = 0.0  # Vertical component of the arc (px/s)
 var _arc_gravity: float = 0.0    # Pseudo-gravity auto-tuned to arc_height + max_range
+var _shadow_node: Node2D = null  # Small shadow circle drawn at sea level while shell is aloft
 
 @onready var trail_node: Line2D = $Trail
 @onready var life_timer: Timer = $LifeTimer
@@ -68,14 +69,28 @@ func initialize(
 	var dispersion_rad := deg_to_rad(randf_range(-dispersion_deg, dispersion_deg))
 	rotation = direction + dispersion_rad
 	velocity = Vector2(0, -speed).rotated(rotation)
-	# Compute pseudo-ballistic arc: gravity tuned so shell peaks at arc_height
-	# and returns to height 0 at approximately max_range.
-	# From kinematics: g = 8 * h_max / T², v0 = g * T / 2, where T = max_range / speed
+	# From idealized kinematics (approximation — ignores drag on horizontal motion):
+	# g = 8 * h_max / T², v0 = g * T / 2, where T ≈ max_range / speed.
+	# When drag_coefficient > 0 the horizontal component slows faster than this model
+	# predicts, so the shell may land slightly short of max_range. This is intentional:
+	# the vertical "height" arc is a decoupled visual layer independent of horizontal drag.
 	height = 0.0
 	if arc_height > 0.0 and speed > 0.0:
 		var est_flight_time := max_range / speed
 		_arc_gravity = 8.0 * arc_height / (est_flight_time * est_flight_time)
 		vertical_velocity = _arc_gravity * est_flight_time / 2.0
+		# Create a small shadow circle that stays at sea level while the shell is aloft
+		var parent := get_parent()
+		if parent != null:
+			_shadow_node = Node2D.new()
+			_shadow_node.z_index = z_index - 1
+			_shadow_node.set_meta("alpha", 0.0)
+			parent.add_child(_shadow_node)
+			_shadow_node.global_position = global_position
+			_shadow_node.draw.connect(func():
+				var a: float = _shadow_node.get_meta("alpha")
+				_shadow_node.draw_circle(Vector2.ZERO, 4.0, Color(0.0, 0.0, 0.0, a))
+			)
 	else:
 		_arc_gravity = 0.0
 		vertical_velocity = 0.0
@@ -97,9 +112,18 @@ func _physics_process(delta):
 	if _arc_gravity > 0.0:
 		vertical_velocity -= _arc_gravity * delta
 		height += vertical_velocity * delta
-		# Scale node to visually suggest altitude (larger at peak, normal at sea level)
+		# Scale node to suggest altitude (slightly larger at peak)
 		var h_norm := clamp(height / max(arc_height, 0.001), 0.0, 1.5)
-		scale = Vector2.ONE * (1.0 + h_norm * 0.4)
+		scale = Vector2.ONE * (1.0 + h_norm * 0.3)
+		# Move the visual upward in screen space to show the arc as a curve
+		if trail_node:
+			trail_node.position = Vector2(0.0, -height)
+		# Keep shadow at sea-level (world) position and update alpha based on height
+		if _shadow_node and is_instance_valid(_shadow_node):
+			_shadow_node.global_position = global_position
+			var shadow_alpha := clamp(height / max(arc_height, 0.001), 0.0, 1.0) * 0.4
+			_shadow_node.set_meta("alpha", shadow_alpha)
+			_shadow_node.queue_redraw()
 		# Shell has returned to sea level → miss (water splash)
 		if height <= 0.0 and vertical_velocity < 0.0:
 			_splash()
@@ -143,10 +167,10 @@ func _on_body_entered(body):
 			effective_damage = clamp(int(float(damage) * ke_factor), 1, damage)
 		body.take_damage(effective_damage)
 		print("Projectile hit! Dealt %d damage (base: %d)" % [effective_damage, damage])
-		if piercing:
-			_piercing_spark()  # Visual feedback: piercing round passed through
 
-	if not piercing:
+	if piercing:
+		_piercing_spark()  # Visual feedback: piercing round passed through any body
+	else:
 		_explode()
 
 
@@ -156,6 +180,9 @@ func _on_life_timer_timeout():
 
 func _piercing_spark():
 	# Brief spark at the penetration point so the player knows the round passed through
+	scale = Vector2.ONE  # Reset scale from arc height before placing visual effect
+	if trail_node:
+		trail_node.position = Vector2.ZERO
 	var p := get_parent()
 	if p == null:
 		return
@@ -177,6 +204,11 @@ func _splash():
 	if exploded:
 		return
 	exploded = true
+	scale = Vector2.ONE
+	if trail_node:
+		trail_node.position = Vector2.ZERO
+	if _shadow_node and is_instance_valid(_shadow_node):
+		_shadow_node.queue_free()
 	var p := get_parent()
 	if p == null:
 		queue_free()
@@ -215,6 +247,11 @@ func _explode():
 	if exploded:
 		return
 	exploded = true
+	scale = Vector2.ONE  # Reset scale from arc height before placing visual effects
+	if trail_node:
+		trail_node.position = Vector2.ZERO
+	if _shadow_node and is_instance_valid(_shadow_node):
+		_shadow_node.queue_free()
 	var p := get_parent()
 	if p == null:
 		queue_free()
