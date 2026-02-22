@@ -168,8 +168,8 @@ func fire_main_guns():
 	var gun_drag := class_data.main_gun_drag if class_data else 0.0
 	# Dispersion increases slightly when the ship is moving fast
 	var base_disp := class_data.main_gun_dispersion if class_data else 0.017
-	var speed_factor := abs(current_speed) / max_speed if max_speed > 0.0 else 0.0
-	var disp := base_disp * (1.0 + 0.5 * speed_factor)
+	var speed_factor: float = abs(current_speed) / max_speed if max_speed > 0.0 else 0.0
+	var disp: float = base_disp * (1.0 + 0.5 * speed_factor)
 	var gun_arc := class_data.main_gun_arc_height if class_data else 60.0
 
 	# Create main gun projectiles (front and rear turrets)
