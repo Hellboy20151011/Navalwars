@@ -29,7 +29,7 @@ var can_fire_secondary_guns: bool = true
 var ai_state: String = "patrol"  # patrol, engage, evade
 var ship_class_name: String = "Cruiser"
 var armor: int = 0  # Armor rating from ship class data
-var class_data = null  # ShipClassData instance for ballistic parameters
+var class_data: ShipClasses.ShipClassData = null  # ShipClassData instance for ballistic parameters
 
 # AI parameters
 var patrol_point: Vector2

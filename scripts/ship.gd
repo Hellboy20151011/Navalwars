@@ -29,7 +29,7 @@ var can_fire_main_guns: bool = true
 var can_fire_secondary_guns: bool = true
 var ship_class_name: String = "Cruiser"
 var armor: int = 0  # Armor rating from ship class data
-var class_data = null  # ShipClassData instance for ballistic parameters
+var class_data: ShipClasses.ShipClassData = null  # ShipClassData instance for ballistic parameters
 
 # Gun targeting
 var target_position: Vector2 = Vector2.ZERO
@@ -229,7 +229,7 @@ func _on_secondary_gun_timer_timeout():
 
 func take_damage(amount: int):
 	# Armor reduces incoming damage; heavier armor deflects more
-	var reduced := max(1, int(float(amount) * max(MIN_DAMAGE_MULTIPLIER, 1.0 - float(armor) / ARMOR_SCALE)))
+	var reduced: int = max(1, int(float(amount) * max(MIN_DAMAGE_MULTIPLIER, 1.0 - float(armor) / ARMOR_SCALE)))
 	health -= reduced
 	print("Ship took %d damage (%d after armor %d).\nHealth: %d/%d" % [amount, reduced, armor, health, max_health])
 
