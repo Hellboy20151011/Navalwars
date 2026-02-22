@@ -81,6 +81,7 @@ func _update_hud():
 		var speed_label = $UI/HUD/ShipStatus/SpeedLabel
 		var ammo_label = $UI/HUD/ShipStatus/AmmoLabel
 		var class_label = $UI/HUD/ShipStatus/ClassLabel
+		var elevation_label = $UI/HUD/ShipStatus/ElevationLabel
 
 		if health_label:
 			var health_percent = int(
@@ -97,6 +98,9 @@ func _update_hud():
 				ammo_label.text = "Main Guns: Reloading..."
 		if class_label:
 			class_label.text = "Ship: %s" % player_ship.get_ship_class_name()
+		if elevation_label and player_ship.has_method("get_gun_elevation_deg"):
+			var elev := player_ship.get_gun_elevation_deg()
+			elevation_label.text = "Elevation (Richthöhe): %.0f°  [scroll ↑↓]" % elev
 
 	# Update score
 	var score_label = $UI/HUD/ScoreLabel
