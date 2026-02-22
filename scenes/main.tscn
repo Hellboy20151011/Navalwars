@@ -56,6 +56,10 @@ text = "Main Guns: Ready"
 layout_mode = 2
 text = "Ship: Cruiser"
 
+[node name="ElevationLabel" type="Label" parent="UI/HUD/ShipStatus"]
+layout_mode = 2
+text = "Elevation: 30°  (Scroll to adjust)"
+
 [node name="Minimap" type="Control" parent="UI/HUD"]
 custom_minimum_size = Vector2(200, 200)
 layout_mode = 1
