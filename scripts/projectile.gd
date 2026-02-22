@@ -22,12 +22,17 @@ const SPARK_FADE_DURATION: float = 0.3
 @export var piercing: bool = false
 @export var drag_coefficient: float = 0.0  # Air resistance: velocity decay per second (1/s)
 @export var dispersion_deg: float = 0.0  # Extra angular spread in degrees; ship scripts apply their own dispersion
+@export var arc_height: float = 60.0  # Visual peak height of the ballistic arc (pixels; 0 = flat trajectory)
 
 var velocity: Vector2 = Vector2.ZERO
 var travel_distance: float = 0.0
 var max_range: float = 2000.0
 var initial_speed: float = 0.0  # Muzzle velocity for penetration calculation
 var exploded := false
+# Pseudo-ballistic arc state (computed in initialize)
+var height: float = 0.0          # Current simulated height above sea surface
+var vertical_velocity: float = 0.0  # Vertical component of the arc (px/s)
+var _arc_gravity: float = 0.0    # Pseudo-gravity auto-tuned to arc_height + max_range
 
 @onready var trail_node: Line2D = $Trail
 @onready var life_timer: Timer = $LifeTimer
@@ -63,6 +68,17 @@ func initialize(
 	var dispersion_rad := deg_to_rad(randf_range(-dispersion_deg, dispersion_deg))
 	rotation = direction + dispersion_rad
 	velocity = Vector2(0, -speed).rotated(rotation)
+	# Compute pseudo-ballistic arc: gravity tuned so shell peaks at arc_height
+	# and returns to height 0 at approximately max_range.
+	# From kinematics: g = 8 * h_max / T², v0 = g * T / 2, where T = max_range / speed
+	height = 0.0
+	if arc_height > 0.0 and speed > 0.0:
+		var est_flight_time := max_range / speed
+		_arc_gravity = 8.0 * arc_height / (est_flight_time * est_flight_time)
+		vertical_velocity = _arc_gravity * est_flight_time / 2.0
+	else:
+		_arc_gravity = 0.0
+		vertical_velocity = 0.0
 
 
 func _physics_process(delta):
@@ -77,9 +93,22 @@ func _physics_process(delta):
 	position += velocity * delta
 	travel_distance += velocity.length() * delta
 
-	# Check if projectile exceeded max range → miss, water splash
-	if travel_distance > max_range:
-		_splash()
+	# Pseudo-ballistic arc: simulate height and use landing as primary miss trigger
+	if _arc_gravity > 0.0:
+		vertical_velocity -= _arc_gravity * delta
+		height += vertical_velocity * delta
+		# Scale node to visually suggest altitude (larger at peak, normal at sea level)
+		var h_norm := clamp(height / max(arc_height, 0.001), 0.0, 1.5)
+		scale = Vector2.ONE * (1.0 + h_norm * 0.4)
+		# Shell has returned to sea level → miss (water splash)
+		if height <= 0.0 and vertical_velocity < 0.0:
+			_splash()
+			return
+	else:
+		# Flat trajectory: fall back to max_range travel check
+		if travel_distance > max_range:
+			_splash()
+			return
 
 	# Update trail effect
 	_update_trail()
