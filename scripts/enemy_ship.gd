@@ -175,10 +175,10 @@ func fire_main_guns():
 	main_gun_timer.start()
 
 	# Get ballistic parameters from ship class data
-	var gun_speed := class_data.main_gun_speed if class_data else 550.0
-	var gun_drag := class_data.main_gun_drag if class_data else 0.0
-	var disp := class_data.main_gun_dispersion if class_data else 0.017
-	var gun_arc := class_data.main_gun_arc_height if class_data else 60.0
+	var gun_speed: float = class_data.main_gun_speed if class_data else 550.0
+	var gun_drag: float = class_data.main_gun_drag if class_data else 0.0
+	var disp: float = class_data.main_gun_dispersion if class_data else 0.017
+	var gun_arc: float = class_data.main_gun_arc_height if class_data else 60.0
 
 	# Spawn projectiles
 	_spawn_projectile(Vector2(0, -25), main_gun_damage, gun_speed, gun_drag, disp, gun_arc)
@@ -193,10 +193,10 @@ func fire_secondary_guns():
 	secondary_gun_timer.start()
 
 	# Get ballistic parameters for secondary guns
-	var gun_speed := class_data.secondary_gun_speed if class_data else 650.0
-	var gun_drag := class_data.secondary_gun_drag if class_data else 0.0
-	var disp := class_data.secondary_gun_dispersion if class_data else 0.035
-	var gun_arc := class_data.secondary_gun_arc_height if class_data else 30.0
+	var gun_speed: float = class_data.secondary_gun_speed if class_data else 650.0
+	var gun_drag: float = class_data.secondary_gun_drag if class_data else 0.0
+	var disp: float = class_data.secondary_gun_dispersion if class_data else 0.035
+	var gun_arc: float = class_data.secondary_gun_arc_height if class_data else 30.0
 
 	# Spawn projectiles
 	_spawn_projectile(Vector2(-12, -8), secondary_gun_damage, gun_speed, gun_drag, disp, gun_arc)
@@ -251,7 +251,7 @@ func _on_detection_area_body_exited(body):
 
 func take_damage(amount: int):
 	# Armor reduces incoming damage; heavier armor deflects more
-	var reduced := max(1, int(float(amount) * max(MIN_DAMAGE_MULTIPLIER, 1.0 - float(armor) / ARMOR_SCALE)))
+	var reduced: int = max(1, int(float(amount) * max(MIN_DAMAGE_MULTIPLIER, 1.0 - float(armor) / ARMOR_SCALE)))
 	health -= reduced
 	print("Enemy ship took %d damage (%d after armor %d).\nHealth: %d/%d" % [amount, reduced, armor, health, max_health])
 
