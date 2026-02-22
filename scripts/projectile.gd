@@ -113,7 +113,7 @@ func _physics_process(delta):
 		vertical_velocity -= _arc_gravity * delta
 		height += vertical_velocity * delta
 		# Scale node to suggest altitude (slightly larger at peak)
-		var h_norm := clamp(height / max(arc_height, 0.001), 0.0, 1.5)
+		var h_norm: float = clamp(height / max(arc_height, 0.001), 0.0, 1.5)
 		scale = Vector2.ONE * (1.0 + h_norm * 0.3)
 		# Move the visual upward in screen space to show the arc as a curve
 		if trail_node:
@@ -121,7 +121,7 @@ func _physics_process(delta):
 		# Keep shadow at sea-level (world) position and update alpha based on height
 		if _shadow_node and is_instance_valid(_shadow_node):
 			_shadow_node.global_position = global_position
-			var shadow_alpha := clamp(height / max(arc_height, 0.001), 0.0, 1.0) * 0.4
+			var shadow_alpha: float = clamp(height / max(arc_height, 0.001), 0.0, 1.0) * 0.4
 			_shadow_node.set_meta("alpha", shadow_alpha)
 			_shadow_node.queue_redraw()
 		# Shell has returned to sea level → miss (water splash)
@@ -162,8 +162,8 @@ func _on_body_entered(body):
 		# Penetration model: effective damage scales with remaining kinetic energy (KE ∝ v²)
 		var effective_damage := damage
 		if initial_speed > 0.0:
-			var speed_ratio := clamp(velocity.length() / initial_speed, 0.0, 1.0)
-			var ke_factor := speed_ratio * speed_ratio  # KE ∝ v²
+			var speed_ratio: float = clamp(velocity.length() / initial_speed, 0.0, 1.0)
+			var ke_factor: float = speed_ratio * speed_ratio  # KE ∝ v²
 			effective_damage = clamp(int(float(damage) * ke_factor), 1, damage)
 		body.take_damage(effective_damage)
 		print("Projectile hit! Dealt %d damage (base: %d)" % [effective_damage, damage])
