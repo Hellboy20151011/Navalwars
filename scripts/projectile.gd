@@ -4,17 +4,36 @@ extends Area2D
 
 const IMPACT_MARKER_FADE_DURATION: float = 3.0
 const EXPLOSION_SCENE = preload("res://scenes/explosion.tscn")
+const SPLASH_DURATION: float = 0.8
+const SPLASH_OUTER_RADIUS: float = 30.0
+const SPLASH_INNER_RADIUS: float = 18.0
+const SPLASH_CENTER_SCALE: float = 0.4
+const SPLASH_COLOR_OUTER: Color = Color(0.4, 0.7, 1.0)
+const SPLASH_COLOR_INNER: Color = Color(0.8, 0.95, 1.0)
+const SPLASH_COLOR_CENTER: Color = Color(0.6, 0.85, 1.0)
+const SPARK_INNER_RADIUS: float = 5.0
+const SPARK_OUTER_RADIUS: float = 8.0
+const SPARK_INNER_COLOR: Color = Color(1.0, 0.85, 0.2, 0.9)
+const SPARK_OUTER_COLOR: Color = Color(1.0, 0.6, 0.1, 0.7)
+const SPARK_FADE_DURATION: float = 0.3
 
 @export var damage: int = 25
 @export var speed: float = 500.0
 @export var piercing: bool = false
 @export var drag_coefficient: float = 0.0  # Air resistance: velocity decay per second (1/s)
+@export var dispersion_deg: float = 0.0  # Extra angular spread in degrees; ship scripts apply their own dispersion
+@export var arc_height: float = 60.0  # Visual peak height of the ballistic arc (pixels; 0 = flat trajectory)
 
 var velocity: Vector2 = Vector2.ZERO
 var travel_distance: float = 0.0
 var max_range: float = 2000.0
 var initial_speed: float = 0.0  # Muzzle velocity for penetration calculation
 var exploded := false
+# Pseudo-ballistic arc state (computed in initialize)
+var height: float = 0.0          # Current simulated height above sea surface
+var vertical_velocity: float = 0.0  # Vertical component of the arc (px/s)
+var _arc_gravity: float = 0.0    # Pseudo-gravity auto-tuned to arc_height + max_range
+var _shadow_node: Node2D = null  # Small shadow circle drawn at sea level while shell is aloft
 
 @onready var trail_node: Line2D = $Trail
 @onready var life_timer: Timer = $LifeTimer
@@ -42,13 +61,39 @@ func initialize(
 	drag: float = 0.0
 ):
 	position = start_position
-	rotation = direction
 	speed = projectile_speed
 	damage = projectile_damage
-	velocity = Vector2(0, -speed).rotated(direction)
 	collision_mask = hit_mask
 	drag_coefficient = drag
 	initial_speed = projectile_speed
+	var dispersion_rad := deg_to_rad(randf_range(-dispersion_deg, dispersion_deg))
+	rotation = direction + dispersion_rad
+	velocity = Vector2(0, -speed).rotated(rotation)
+	# From idealized kinematics (approximation — ignores drag on horizontal motion):
+	# g = 8 * h_max / T², v0 = g * T / 2, where T ≈ max_range / speed.
+	# When drag_coefficient > 0 the horizontal component slows faster than this model
+	# predicts, so the shell may land slightly short of max_range. This is intentional:
+	# the vertical "height" arc is a decoupled visual layer independent of horizontal drag.
+	height = 0.0
+	if arc_height > 0.0 and speed > 0.0:
+		var est_flight_time := max_range / speed
+		_arc_gravity = 8.0 * arc_height / (est_flight_time * est_flight_time)
+		vertical_velocity = _arc_gravity * est_flight_time / 2.0
+		# Create a small shadow circle that stays at sea level while the shell is aloft
+		var parent := get_parent()
+		if parent != null:
+			_shadow_node = Node2D.new()
+			_shadow_node.z_index = z_index - 1
+			_shadow_node.set_meta("alpha", 0.0)
+			parent.add_child(_shadow_node)
+			_shadow_node.global_position = global_position
+			_shadow_node.draw.connect(func():
+				var a: float = _shadow_node.get_meta("alpha")
+				_shadow_node.draw_circle(Vector2.ZERO, 4.0, Color(0.0, 0.0, 0.0, a))
+			)
+	else:
+		_arc_gravity = 0.0
+		vertical_velocity = 0.0
 
 
 func _physics_process(delta):
@@ -63,9 +108,31 @@ func _physics_process(delta):
 	position += velocity * delta
 	travel_distance += velocity.length() * delta
 
-	# Check if projectile exceeded max range
-	if travel_distance > max_range:
-		_explode()
+	# Pseudo-ballistic arc: simulate height and use landing as primary miss trigger
+	if _arc_gravity > 0.0:
+		vertical_velocity -= _arc_gravity * delta
+		height += vertical_velocity * delta
+		# Scale node to suggest altitude (slightly larger at peak)
+		var h_norm := clamp(height / max(arc_height, 0.001), 0.0, 1.5)
+		scale = Vector2.ONE * (1.0 + h_norm * 0.3)
+		# Move the visual upward in screen space to show the arc as a curve
+		if trail_node:
+			trail_node.position = Vector2(0.0, -height)
+		# Keep shadow at sea-level (world) position and update alpha based on height
+		if _shadow_node and is_instance_valid(_shadow_node):
+			_shadow_node.global_position = global_position
+			var shadow_alpha := clamp(height / max(arc_height, 0.001), 0.0, 1.0) * 0.4
+			_shadow_node.set_meta("alpha", shadow_alpha)
+			_shadow_node.queue_redraw()
+		# Shell has returned to sea level → miss (water splash)
+		if height <= 0.0 and vertical_velocity < 0.0:
+			_splash()
+			return
+	else:
+		# Flat trajectory: fall back to max_range travel check
+		if travel_distance > max_range:
+			_splash()
+			return
 
 	# Update trail effect
 	_update_trail()
@@ -88,6 +155,9 @@ func _update_trail():
 
 
 func _on_body_entered(body):
+	if exploded:
+		return
+
 	if body.has_method("take_damage"):
 		# Penetration model: effective damage scales with remaining kinetic energy (KE ∝ v²)
 		var effective_damage := damage
@@ -97,27 +167,105 @@ func _on_body_entered(body):
 			effective_damage = clamp(int(float(damage) * ke_factor), 1, damage)
 		body.take_damage(effective_damage)
 		print("Projectile hit! Dealt %d damage (base: %d)" % [effective_damage, damage])
-	_explode()
+
+	if piercing:
+		_piercing_spark()  # Visual feedback: piercing round passed through any body
+	else:
+		_explode()
 
 
 func _on_life_timer_timeout():
-	_explode()
+	_splash()  # Timed out without hitting a target → water impact
+
+
+func _piercing_spark():
+	# Brief spark at the penetration point so the player knows the round passed through
+	scale = Vector2.ONE  # Reset scale from arc height before placing visual effect
+	if trail_node:
+		trail_node.position = Vector2.ZERO
+	var p := get_parent()
+	if p == null:
+		return
+	var spark := Node2D.new()
+	p.add_child(spark)
+	spark.global_position = global_position
+	spark.z_index = 6
+	spark.draw.connect(func():
+		spark.draw_circle(Vector2.ZERO, SPARK_INNER_RADIUS, SPARK_INNER_COLOR)
+		spark.draw_arc(Vector2.ZERO, SPARK_OUTER_RADIUS, 0.0, TAU, 16, SPARK_OUTER_COLOR, 1.5)
+	)
+	spark.queue_redraw()
+	var tween := spark.create_tween()
+	tween.tween_property(spark, "modulate", Color(1, 1, 1, 0), SPARK_FADE_DURATION)
+	tween.tween_callback(spark.queue_free)
+
+
+func _splash():
+	if exploded:
+		return
+	exploded = true
+	scale = Vector2.ONE
+	if trail_node:
+		trail_node.position = Vector2.ZERO
+	if _shadow_node and is_instance_valid(_shadow_node):
+		_shadow_node.queue_free()
+	var p := get_parent()
+	if p == null:
+		queue_free()
+		return
+	# Water-splash effect: expanding blue/white rings to show a miss landing in the sea
+	var splash := Node2D.new()
+	p.add_child(splash)
+	splash.global_position = global_position
+	splash.z_index = 5
+	splash.set_meta("time", 0.0)
+	splash.draw.connect(func():
+		var t: float = splash.get_meta("time") / SPLASH_DURATION
+		var alpha := 1.0 - t
+		var r1 := t * SPLASH_OUTER_RADIUS
+		var r2 := t * SPLASH_INNER_RADIUS
+		var c1 := SPLASH_COLOR_OUTER
+		c1.a = alpha * 0.9
+		var c2 := SPLASH_COLOR_INNER
+		c2.a = alpha * 0.6
+		var c3 := SPLASH_COLOR_CENTER
+		c3.a = alpha * 0.4
+		splash.draw_arc(Vector2.ZERO, r1, 0.0, TAU, 32, c1, 2.5)
+		splash.draw_arc(Vector2.ZERO, r2, 0.0, TAU, 24, c2, 1.5)
+		splash.draw_circle(Vector2.ZERO, r2 * SPLASH_CENTER_SCALE, c3)
+	)
+	var splash_tween := splash.create_tween()
+	splash_tween.tween_method(
+		func(t: float) -> void: splash.set_meta("time", t); splash.queue_redraw(),
+		0.0, SPLASH_DURATION, SPLASH_DURATION
+	)
+	splash_tween.tween_callback(splash.queue_free)
+	queue_free()
 
 
 func _explode():
 	if exploded:
 		return
 	exploded = true
+	scale = Vector2.ONE  # Reset scale from arc height before placing visual effects
+	if trail_node:
+		trail_node.position = Vector2.ZERO
+	if _shadow_node and is_instance_valid(_shadow_node):
+		_shadow_node.queue_free()
+	var p := get_parent()
+	if p == null:
+		queue_free()
+		return
 	# Create small explosion effect on impact/timeout
 	var explosion = EXPLOSION_SCENE.instantiate()
-	get_parent().add_child(explosion)
+	p.add_child(explosion)
 	explosion.global_position = global_position
 	explosion.explosion_radius = 25.0
 	explosion.explosion_duration = 0.5
 
 	# Create impact marker: small green circle that fades out
 	var marker = Node2D.new()
-	get_parent().add_child(marker)
+	p.add_child(marker)
 	marker.global_position = global_position
 	marker.z_index = 6
 	marker.draw.connect(
