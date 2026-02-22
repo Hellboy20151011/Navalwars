@@ -35,8 +35,8 @@ anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
 offset_left = 10.0
-offset_top = -120.0
-offset_right = 300.0
+offset_top = -220.0
+offset_right = 360.0
 offset_bottom = -10.0
 grow_vertical = 0
 
@@ -58,7 +58,23 @@ text = "Ship: Cruiser"
 
 [node name="ElevationLabel" type="Label" parent="UI/HUD/ShipStatus"]
 layout_mode = 2
-text = "Elevation: 30°  (Scroll to adjust)"
+text = "Elevation (Richthöhe): 30°  [scroll ↑↓]"
+
+[node name="RangeLabel" type="Label" parent="UI/HUD/ShipStatus"]
+layout_mode = 2
+text = "Entf.: ---  Reichw.: ---"
+
+[node name="BearingLabel" type="Label" parent="UI/HUD/ShipStatus"]
+layout_mode = 2
+text = "Peilwinkel: ---"
+
+[node name="HitProbLabel" type="Label" parent="UI/HUD/ShipStatus"]
+layout_mode = 2
+text = "Trefferw.: ---"
+
+[node name="FireCorrLabel" type="Label" parent="UI/HUD/ShipStatus"]
+layout_mode = 2
+text = "Feuerkorr.: Kein Ziel"
 
 [node name="Minimap" type="Control" parent="UI/HUD"]
 custom_minimum_size = Vector2(200, 200)

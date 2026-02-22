@@ -69,6 +69,29 @@ func get_gun_elevation_deg() -> float:
 	return gun_elevation_deg
 
 
+func get_target_distance() -> float:
+	## Distance from ship to current target position (0 if no target is set)
+	if not has_target:
+		return 0.0
+	return global_position.distance_to(target_position)
+
+
+func get_ballistic_range() -> float:
+	## Current ballistic range at the set gun elevation and ship class muzzle speed
+	var gun_speed: float = class_data.main_gun_speed if class_data else 600.0
+	return _compute_ballistic_range(gun_speed)
+
+
+func get_main_gun_dispersion() -> float:
+	## Half-angle dispersion (radians) for the main guns
+	return class_data.main_gun_dispersion if class_data else 0.017
+
+
+func get_main_gun_speed() -> float:
+	## Muzzle velocity for the main guns
+	return class_data.main_gun_speed if class_data else 600.0
+
+
 # Ballistic range formula: Range = v₀² × sin(2θ) / g
 # Gives the horizontal range a shell will travel at the current elevation with the given muzzle speed.
 func _compute_ballistic_range(muzzle_speed: float) -> float:

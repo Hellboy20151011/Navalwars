@@ -4,6 +4,8 @@ extends Node2D
 
 # Display constants
 const VELOCITY_TO_KNOTS_FACTOR: float = 10.0  # Conversion factor for game units to nautical knots
+const ON_TARGET_TOLERANCE_PX: float = 20.0    # Range delta (px) within which a shot is considered "on target"
+const DEFAULT_TARGET_SIZE_PX: float = 40.0    # Approximate target cross-section for hit probability (px)
 
 # Preload enemy ship scene
 var enemy_ship_scene = preload("res://scenes/enemy_ship.tscn")
@@ -82,6 +84,10 @@ func _update_hud():
 		var ammo_label = $UI/HUD/ShipStatus/AmmoLabel
 		var class_label = $UI/HUD/ShipStatus/ClassLabel
 		var elevation_label = $UI/HUD/ShipStatus/ElevationLabel
+		var range_label = $UI/HUD/ShipStatus/RangeLabel
+		var bearing_label = $UI/HUD/ShipStatus/BearingLabel
+		var hit_prob_label = $UI/HUD/ShipStatus/HitProbLabel
+		var fire_corr_label = $UI/HUD/ShipStatus/FireCorrLabel
 
 		if health_label:
 			var health_percent = int(
@@ -101,6 +107,60 @@ func _update_hud():
 		if elevation_label and player_ship.has_method("get_gun_elevation_deg"):
 			var elev := player_ship.get_gun_elevation_deg()
 			elevation_label.text = "Elevation (Richthöhe): %.0f°  [scroll ↑↓]" % elev
+
+		# ── Artillery calculations (Artillerieberechnungen) ──────────────────
+		if player_ship.has_target:
+			var target_pos: Vector2 = player_ship.target_position
+			var ship_pos: Vector2 = player_ship.global_position
+			var target_dist: float = player_ship.get_target_distance()
+			var computed_range: float = player_ship.get_ballistic_range()
+			var gun_speed: float = player_ship.get_main_gun_speed()
+
+			# Range label: actual distance to target vs computed ballistic range
+			if range_label:
+				range_label.text = "Entf.: %.0f  Reichw.: %.0f px" % [target_dist, computed_range]
+
+			# Bearing label: Seitenrichtwinkel (bearing from North in Strich)
+			if bearing_label:
+				var bearing_s: float = ArtilleryCalculator.bearing_strich(ship_pos, target_pos)
+				var bearing_d: float = ArtilleryCalculator.bearing_deg(ship_pos, target_pos)
+				bearing_label.text = "Peilwinkel: %.0f Strich (%.1f°)" % [bearing_s, bearing_d]
+
+			# Hit probability: Trefferwahrscheinlichkeit
+			if hit_prob_label:
+				var disp: float = player_ship.get_main_gun_dispersion()
+				# Use a target cross-section of ~40 px (typical cruiser width in game units)
+				var target_size: float = DEFAULT_TARGET_SIZE_PX
+				var prob: float = ArtilleryCalculator.hit_probability(disp, target_dist, target_size)
+				hit_prob_label.text = "Trefferw.: %.0f%%" % (prob * 100.0)
+
+			# Fire correction: Feuerkorrektur / Gabelverfahren
+			if fire_corr_label:
+				var elev_data := ArtilleryCalculator.elevation_for_range(
+					target_dist, gun_speed, ArtilleryCalculator.GRAVITY
+				)
+				if not elev_data["reachable"]:
+					fire_corr_label.text = "Feuerkorr.: Außer Reichweite"
+				elif abs(computed_range - target_dist) < ON_TARGET_TOLERANCE_PX:
+					fire_corr_label.text = "Feuerkorr.: Auf Ziel ✓"
+				else:
+					var is_over: bool = computed_range > target_dist
+					var req_elev: float = elev_data["low_deg"]
+					var curr_elev: float = player_ship.get_gun_elevation_deg()
+					var delta_elev: float = abs(curr_elev - req_elev)
+					if is_over:
+						fire_corr_label.text = "Feuerkorr.: Zu weit  ↓ %.1f°" % delta_elev
+					else:
+						fire_corr_label.text = "Feuerkorr.: Zu kurz  ↑ %.1f°" % delta_elev
+		else:
+			if range_label:
+				range_label.text = "Entf.: ---  Reichw.: %.0f px" % player_ship.get_ballistic_range()
+			if bearing_label:
+				bearing_label.text = "Peilwinkel: ---"
+			if hit_prob_label:
+				hit_prob_label.text = "Trefferw.: ---"
+			if fire_corr_label:
+				fire_corr_label.text = "Feuerkorr.: Kein Ziel"
 
 	# Update score
 	var score_label = $UI/HUD/ScoreLabel
