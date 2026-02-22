@@ -21,9 +21,11 @@ class ShipClassData:
 	var main_gun_speed: float       # Muzzle velocity of main gun shells (px/s)
 	var main_gun_drag: float        # Drag coefficient for main gun shells (1/s)
 	var main_gun_dispersion: float  # Half-angle dispersion of main guns (radians)
+	var main_gun_arc_height: float  # Visual arc peak height for main gun shells (px)
 	var secondary_gun_speed: float      # Muzzle velocity of secondary shells (px/s)
 	var secondary_gun_drag: float       # Drag coefficient for secondary shells (1/s)
 	var secondary_gun_dispersion: float # Half-angle dispersion of secondary guns (radians)
+	var secondary_gun_arc_height: float # Visual arc peak height for secondary gun shells (px)
 	var armor: int                  # Armor rating (reduces incoming damage)
 
 	func _init(
@@ -40,9 +42,11 @@ class ShipClassData:
 		p_main_gun_speed: float,
 		p_main_gun_drag: float,
 		p_main_gun_dispersion: float,
+		p_main_gun_arc_height: float,
 		p_secondary_gun_speed: float,
 		p_secondary_gun_drag: float,
 		p_secondary_gun_dispersion: float,
+		p_secondary_gun_arc_height: float,
 		p_armor: int
 	):
 		ship_name = p_class_name
@@ -58,9 +62,11 @@ class ShipClassData:
 		main_gun_speed = p_main_gun_speed
 		main_gun_drag = p_main_gun_drag
 		main_gun_dispersion = p_main_gun_dispersion
+		main_gun_arc_height = p_main_gun_arc_height
 		secondary_gun_speed = p_secondary_gun_speed
 		secondary_gun_drag = p_secondary_gun_drag
 		secondary_gun_dispersion = p_secondary_gun_dispersion
+		secondary_gun_arc_height = p_secondary_gun_arc_height
 		armor = p_armor
 
 
@@ -84,9 +90,11 @@ static func get_ship_class_data(ship_class: ShipClass):
 				650.0, # main_gun_speed: fast light shells
 				0.15,  # main_gun_drag: moderate drag (lighter shells)
 				0.035, # main_gun_dispersion: ±2° (less precise)
+				30.0,  # main_gun_arc_height: shallow arc (fast, flat trajectory)
 				720.0, # secondary_gun_speed: fast
 				0.20,  # secondary_gun_drag: high drag (small shells)
 				0.052, # secondary_gun_dispersion: ±3°
+				15.0,  # secondary_gun_arc_height: very flat (rapid-fire guns)
 				10     # armor: very light
 			)
 		ShipClass.CRUISER:
@@ -105,9 +113,11 @@ static func get_ship_class_data(ship_class: ShipClass):
 				600.0, # main_gun_speed
 				0.10,  # main_gun_drag: moderate
 				0.017, # main_gun_dispersion: ±1°
+				60.0,  # main_gun_arc_height: medium arc
 				700.0, # secondary_gun_speed
 				0.15,  # secondary_gun_drag
 				0.035, # secondary_gun_dispersion: ±2°
+				30.0,  # secondary_gun_arc_height: moderate arc
 				30     # armor: medium
 			)
 		ShipClass.BATTLESHIP:
@@ -126,9 +136,11 @@ static func get_ship_class_data(ship_class: ShipClass):
 				762.0, # main_gun_speed: high muzzle velocity (WW2 battleship ~762 m/s)
 				0.05,  # main_gun_drag: very low (heavy shells retain speed)
 				0.009, # main_gun_dispersion: ±0.5° (very precise)
+				100.0, # main_gun_arc_height: high arc (long-range heavy shells)
 				650.0, # secondary_gun_speed
 				0.10,  # secondary_gun_drag
 				0.017, # secondary_gun_dispersion: ±1°
+				55.0,  # secondary_gun_arc_height: moderate arc
 				60     # armor: heavy
 			)
 		ShipClass.CARRIER:
@@ -147,9 +159,11 @@ static func get_ship_class_data(ship_class: ShipClass):
 				500.0, # main_gun_speed: slow defensive guns
 				0.12,  # main_gun_drag
 				0.026, # main_gun_dispersion: ±1.5°
+				45.0,  # main_gun_arc_height: low-moderate arc (short-range defensive)
 				680.0, # secondary_gun_speed
 				0.15,  # secondary_gun_drag
 				0.035, # secondary_gun_dispersion: ±2°
+				25.0,  # secondary_gun_arc_height: shallow arc
 				20     # armor: light
 			)
 		_:

@@ -178,10 +178,11 @@ func fire_main_guns():
 	var gun_speed := class_data.main_gun_speed if class_data else 550.0
 	var gun_drag := class_data.main_gun_drag if class_data else 0.0
 	var disp := class_data.main_gun_dispersion if class_data else 0.017
+	var gun_arc := class_data.main_gun_arc_height if class_data else 60.0
 
 	# Spawn projectiles
-	_spawn_projectile(Vector2(0, -25), main_gun_damage, gun_speed, gun_drag, disp)
-	_spawn_projectile(Vector2(0, 25), main_gun_damage, gun_speed, gun_drag, disp)
+	_spawn_projectile(Vector2(0, -25), main_gun_damage, gun_speed, gun_drag, disp, gun_arc)
+	_spawn_projectile(Vector2(0, 25), main_gun_damage, gun_speed, gun_drag, disp, gun_arc)
 
 
 func fire_secondary_guns():
@@ -195,19 +196,21 @@ func fire_secondary_guns():
 	var gun_speed := class_data.secondary_gun_speed if class_data else 650.0
 	var gun_drag := class_data.secondary_gun_drag if class_data else 0.0
 	var disp := class_data.secondary_gun_dispersion if class_data else 0.035
+	var gun_arc := class_data.secondary_gun_arc_height if class_data else 30.0
 
 	# Spawn projectiles
-	_spawn_projectile(Vector2(-12, -8), secondary_gun_damage, gun_speed, gun_drag, disp)
-	_spawn_projectile(Vector2(12, -8), secondary_gun_damage, gun_speed, gun_drag, disp)
+	_spawn_projectile(Vector2(-12, -8), secondary_gun_damage, gun_speed, gun_drag, disp, gun_arc)
+	_spawn_projectile(Vector2(12, -8), secondary_gun_damage, gun_speed, gun_drag, disp, gun_arc)
 
 
-func _spawn_projectile(offset: Vector2, damage: int, speed: float, drag: float = 0.0, dispersion: float = 0.0):
+func _spawn_projectile(offset: Vector2, damage: int, speed: float, drag: float = 0.0, dispersion: float = 0.0, arc: float = 60.0):
 	var projectile = PROJECTILE_SCENE.instantiate()
 	get_parent().add_child(projectile)
 
 	var spawn_pos = global_position + offset.rotated(rotation)
 	# Apply angular dispersion for realistic scatter
 	var dispersed_angle := rotation + randf_range(-dispersion, dispersion)
+	projectile.arc_height = arc
 	projectile.initialize(spawn_pos, dispersed_angle, speed, damage, 1, drag)  # Only hit player (layer 1)
 
 
