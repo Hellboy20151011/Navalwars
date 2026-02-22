@@ -286,4 +286,7 @@ func _spawn_projectile(offset: Vector2, fire_angle: float, damage: int, speed: f
 	# Apply angular dispersion for realistic scatter
 	var dispersed_angle := fire_angle + randf_range(-dispersion, dispersion)
 	projectile.arc_height = arc
+	# Set max_range to actual distance to target so the ballistic arc lands where clicked
+	if has_target:
+		projectile.max_range = max(100.0, spawn_pos.distance_to(target_position))
 	projectile.initialize(spawn_pos, dispersed_angle, speed, damage, 2, drag)  # Only hit enemies (layer 2)
